@@ -1,0 +1,2 @@
+/var/spool/slurmd/job1334583/slurm_script: line 10: /data/[username]/anaconda3/etc/profile.d/conda.sh: No such file or directory
+/var/spool/slurmd/job1334583/slurm_script: line 13: jupyter-notebook: command not found

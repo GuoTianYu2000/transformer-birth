@@ -8,6 +8,7 @@ import pickle
 import time
 import torch
 import sys
+import pdb
 
 from torch import nn, Tensor
 from torch.nn import functional as F
@@ -34,6 +35,7 @@ class ModelArgs:
     no_wo: bool = False
     no_wv: bool = False
     sin_cos: bool = False
+    bos_num: int = 0
 
 
 class Attention(nn.Module):
@@ -77,6 +79,7 @@ class Attention(nn.Module):
 
         # change to (bs, n_heads, slen, head_dim)
         xq, xk, xv = xq.transpose(1, 2), xk.transpose(1, 2), xv.transpose(1, 2)
+        # pdb.set_trace()
         scores = torch.matmul(xq, xk.transpose(2, 3)) / math.sqrt(self.head_dim)
         scores = scores + mask  # (bs, n_heads, slen, slen)
         scores = F.softmax(scores.float(), dim=-1).type_as(x)
@@ -242,6 +245,7 @@ class Transformer(nn.Module):
             if return_layer == i + 1:
                 return layer(h, mask, no_ffn=before_ffn)
             h = layer(h, mask)
+            # pdb.set_trace()
 
         # output layer
         if self.norm is not None:

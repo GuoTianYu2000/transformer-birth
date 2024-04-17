@@ -7,6 +7,7 @@ import numpy as np
 import pickle
 import time
 import sys
+import pdb
 
 from typing import List, Optional, Tuple
 
@@ -22,6 +23,7 @@ class DataArgs:
     special_toks_offset: int = 0
     output_counter: bool = True
     no_repeat: bool = False
+    bos_num: int = 0
 
 
 class Dataset:
@@ -30,6 +32,7 @@ class Dataset:
                  bigram_outs: Optional[bool] = False):
         self.k = args.k
         self.seq_length = args.seq_length
+        self.bos_num = args.bos_num
         self.show_latents = args.show_latents
         self.train_test = train_test
         self.output_counter = args.output_counter
@@ -70,7 +73,13 @@ class Dataset:
             self.idxs = list(self.marginal.argsort()[self.num_tokens-args.special_toks_offset-self.k:self.num_tokens-args.special_toks_offset])
 
     def decode(self, idxs: List[int]) -> str:
-        return ''.join(self.itos[idx] for idx in idxs)
+        if idxs[0] >= self.num_tokens:
+            bos_prefix = ['<s>'] * self.bos_num
+            text = [self.itos[idx] for idx in idxs[self.bos_num:]]
+            return bos_prefix + text
+        else:
+            text = [self.itos[idx] for idx in idxs]
+            return text
 
     def gen_seq(self, rng: np.random.Generator):
         # select special tokens for this sequence
@@ -110,6 +119,8 @@ class Dataset:
         else:
             seq = []
             outputs_seq = []
+        # pdb.set_trace()
+        seq += list(range(self.num_tokens, self.num_tokens+self.bos_num))
         seq += [rng.choice(self.tok_range, p=self.marginal)]
         while len(seq) < self.seq_length + 1:
             last = seq[-1]
@@ -125,6 +136,8 @@ class Dataset:
                 outputs_seq.append(0)
                 seq.append(rng.choice(self.tok_range, p=probs))
         outputs_seq.append(0)
+        outputs_seq[:0] = [0] * self.bos_num
+        # pdb.set_trace()
 
         return seq, outputs_seq
 

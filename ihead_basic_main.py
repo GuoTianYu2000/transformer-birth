@@ -57,6 +57,7 @@ if __name__ == '__main__':
            model_args=ModelArgs()
         )
     cfg = OmegaConf.merge(OmegaConf.structured(args), OmegaConf.from_cli())
+    print(cfg.save_dir)
 
     ds = Dataset(cfg.data_args, train_test=None, bigram_outs=cfg.bigram_outs_train)
     ds_test = Dataset(cfg.data_args, train_test=None, bigram_outs=cfg.bigram_outs_test)
