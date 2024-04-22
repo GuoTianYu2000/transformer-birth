@@ -119,7 +119,9 @@ class Dataset:
             seq = []
             outputs_seq = []
         # pdb.set_trace()
-        seq += [rng.choice(self.tok_range, p=self.marginal)]
+        for idx in range(self.num_tokens):
+            if self.itos[idx] == '<s>':
+                seq.append(idx)
         while len(seq) < self.seq_length + 1:
             last = seq[-1]
             if last in idxs:
