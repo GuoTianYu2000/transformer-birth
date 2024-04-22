@@ -5,7 +5,7 @@
 #SBATCH --mail-user=tianyu_guo@berkeley.edu
 #SBATCH --cpus-per-task=16
 #SBATCH --gres=gpu:1
-#SBATCH --array=1-8
+#SBATCH --array=0
 conda init bash
 source activate nanogpt
 

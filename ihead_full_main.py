@@ -19,7 +19,7 @@ from torch import nn, Tensor
 from torch.nn import functional as F
 from typing import List, Optional, Tuple
 
-from ihead_data import DataArgs, Dataset, iterate_batches
+from data import DataArgs, Dataset, iterate_batches
 from ihead_full_model import ModelArgs, Transformer
 from tqdm import tqdm
 
