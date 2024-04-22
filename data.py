@@ -23,8 +23,8 @@ class DataArgs:
     special_toks_offset: int = 0
     output_counter: bool = True
     no_repeat: bool = False
-    bos_num: int = 0
-    delimiter_num: int = 0
+    bos_num: int = 1
+    delimiter_p: float = 0.05
 
 
 class Dataset:
@@ -39,10 +39,12 @@ class Dataset:
         self.output_counter = args.output_counter
         self.no_repeat = args.no_repeat
         self.bigram_outs = bigram_outs
-        self.delimiter_num = args.delimiter_num
+        self.delimiter_p = args.delimiter_p
 
         # init distributions
         self.meta = pickle.load(open('data/meta.pkl', 'rb'))
+        self.meta = self.add_bos(self.meta)
+        self.meta = self.add_delimiter(self.meta)
         self.itos = self.meta['itos']
         self.stoi = self.meta['stoi']
         self.num_tokens = self.meta['vocab_size']
@@ -75,13 +77,8 @@ class Dataset:
             self.idxs = list(self.marginal.argsort()[self.num_tokens-args.special_toks_offset-self.k:self.num_tokens-args.special_toks_offset])
 
     def decode(self, idxs: List[int]) -> str:
-        if idxs[0] >= self.num_tokens:
-            bos_prefix = ['<s>'] * self.bos_num
-            text = [self.itos[idx] for idx in idxs[self.bos_num:]]
-            return bos_prefix + text
-        else:
-            text = [self.itos[idx] for idx in idxs]
-            return text
+        text = [self.itos[idx] for idx in idxs]
+        return text
 
     def gen_seq(self, rng: np.random.Generator):
         # select special tokens for this sequence
@@ -122,7 +119,6 @@ class Dataset:
             seq = []
             outputs_seq = []
         # pdb.set_trace()
-        seq += list(range(self.num_tokens, self.num_tokens+self.bos_num))
         seq += [rng.choice(self.tok_range, p=self.marginal)]
         while len(seq) < self.seq_length + 1:
             last = seq[-1]
@@ -138,7 +134,6 @@ class Dataset:
                 outputs_seq.append(0)
                 seq.append(rng.choice(self.tok_range, p=probs))
         outputs_seq.append(0)
-        outputs_seq[:0] = [0] * self.bos_num
         # pdb.set_trace()
 
         return seq, outputs_seq
@@ -158,7 +153,46 @@ class Dataset:
         x = np.array(seqs).reshape(batch_size, self.seq_length + 1)
         outs = np.array(outs).reshape(batch_size, self.seq_length + 1)
         return x, outs
-
+    
+    # here to make sure that <s> generates a new token following unigrams, and nothing generates <s>, nor <s> gets included in unigrams
+    def add_bos(self, meta):
+        for i in range(self.bos_num):
+            idx = meta['vocab_size']
+            tok = f'<s>'
+            ref_pre = [(tok, 0) for tok in meta['unigrams'].keys()]
+            ref_pre = dict(ref_pre)
+            ref_post = meta['unigrams']
+            ref_post[tok], ref_pre[tok] = 0, 0
+            meta = self.update_meta(meta, idx, tok, ref_pre=ref_pre, ref_post=ref_post)
+        return meta
+    
+    # here to make sure that 1. <d> is not in unigrams; 2. <d> generates a new token following unigrams; 3. all other tokens (except for <s>) generate <d> with probability p
+    def add_delimiter(self, meta):
+        idx = meta['vocab_size']
+        tok = '<d>'
+        ref_pre = [(tok, 0) for tok in meta['unigrams'].keys()]
+        ref_pre = dict(ref_pre)
+        for (w1, w2), cnt in self.meta['bigrams'].items():
+            if w1 == '<s>':
+                continue
+            ref_pre[w1] += cnt
+        for (w1, cnt) in ref_pre.items():
+            ref_pre[w1] = cnt * self.delimiter_p / (1- self.delimiter_p)
+        ref_post = meta['unigrams']
+        ref_post[tok], ref_pre[tok] = 0, 0
+        meta = self.update_meta(meta, idx, tok, ref_pre=ref_pre, ref_post=ref_post)
+        return meta
+    
+    def update_meta(self, meta, idx, tok, ref_pre=None, ref_post=None):
+        assert meta['vocab_size'] == idx
+        meta['itos'][idx] = tok
+        meta['stoi'][tok] = idx
+        meta['vocab_size'] += 1
+        meta['unigrams'][tok] = 0
+        for tok2 in meta['unigrams'].keys():
+            meta['bigrams'][(tok, tok2)] = ref_post[tok2]
+            meta['bigrams'][(tok2, tok)] = ref_pre[tok2]
+        return meta
 
 def iterate_batches(dataset: Dataset,
                     batch_size: int = 20,

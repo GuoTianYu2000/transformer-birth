@@ -61,7 +61,7 @@ if __name__ == '__main__':
     ds_test = Dataset(cfg.data_args, train_test=None)
     ds_test.idxs = ds.idxs
 
-    cfg.model_args.vocab_size = ds.num_tokens + ds.bos_num
+    cfg.model_args.vocab_size = ds.num_tokens
 
     if cfg.save_dir is not None:
         outdir = Path(cfg.root_dir) / Path(cfg.save_dir)
