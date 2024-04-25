@@ -80,67 +80,59 @@ class Dataset:
         text = [self.itos[idx] for idx in idxs]
         return text
 
-    def gen_seq(self, rng: np.random.Generator):
-        # select special tokens for this sequence
-        if self.idxs is not None:
-            idxs = self.idxs
+    def icl_transition(self, x, rng, contexts):
+        if x in contexts.keys():
+            return contexts[x]
         else:
-            idxs = list(rng.choice(self.tok_range, p=self.marginal, size=self.k, replace=False))
-        # for each special token, select a special next token
-        # outs = [rng.choice(self.tok_range, p=self.cond[idx]) for idx in idxs]
+            return None
+    
+    def markov_transition(self, x, rng):
+        probs = self.cond[x]
+        return rng.choice(self.tok_range, p=probs)
 
+    # start and end are indices of the start and the end of the copy
+    def copy(self, x, rng, seq, start, end):
+        return seq[start:(end+1)]
+
+    def iid_transition(self, x, rng, ):
+        return rng.choice(self.tok_range, p=self.marginal, size=self.k, replace=False)
+    
+    def make_icl_context(self, triggers, rng):
         if self.no_repeat:  # prevent next token to be same as idx
-            pools = [self.tok_range.copy() for idx in idxs]
-            for i, idx in enumerate(idxs):
+            pools = [self.tok_range.copy() for idx in triggers]
+            for i, idx in enumerate(triggers):
                 pools[i].remove(idx)
         else:
-            pools = [self.tok_range for idx in idxs]
-        if self.train_test is None:
-            # outs = [rng.choice(self.tok_range) for idx in idxs]
-            if self.bigram_outs:
-                outs = [rng.choice(pool, p=(self.cond[idx][pool] / self.cond[idx][pool].sum())) for pool, idx in zip(pools, idxs)]
-            else:
-                outs = [rng.choice(pool) for pool in pools]
-        elif self.train_test == 'train':
-            # outs = [rng.choice(self.tok_range[:n_train_toks]) for idx in idxs]
-            outs = [rng.choice(pool[:self.n_train_toks]) for pool in pools]
-        elif self.train_test == 'test':
-            # outs = [rng.choice(self.tok_range[n_train_toks:]) for idx in idxs]
-            outs = [rng.choice(pool[self.n_train_toks:]) for pool in pools]
+            pools = [self.tok_range for idx in triggers]
+        # outs = [rng.choice(self.tok_range) for idx in idxs]
+        if self.bigram_outs:
+            outs = [rng.choice(pool, p=(self.cond[idx][pool] / self.cond[idx][pool].sum())) for pool, idx in zip(pools, triggers)]
         else:
-            assert False
-
-        cnts = {}
-
-        if self.show_latents:
-            seq = idxs.copy()
-            outputs_seq = [-1] * len(idxs) #  []
-        else:
-            seq = []
-            outputs_seq = []
-        # pdb.set_trace()
+            outs = [rng.choice(pool) for pool in pools]
+        context = [(t, o) for t, o in zip(triggers, outs)]
+        context = dict(context)
+        return context
+    
+    def bos_init(self, ):
+        seq = []
         for idx in range(self.num_tokens):
             if self.itos[idx] == '<s>':
                 seq.append(idx)
-        while len(seq) < self.seq_length + 1:
-            last = seq[-1]
-            if last in idxs:
-                seq.append(outs[idxs.index(last)])
-                if self.output_counter:
-                    cnts[last] = cnts.get(last, 0) + 1
-                    outputs_seq.append(cnts[last])
-                else:
-                    outputs_seq.append(1)
+        return seq
+    
+    def gen_seq(self, rng: np.random.Generator):
+        contexts = self.make_icl_context(self.idxs, rng)
+        seq = self.bos_init()
+        while len(seq) < self.seq_length:
+            x = seq[-1]
+            x_markov, x_icl = self.markov_transition(x, rng), self.icl_transition(x, rng, contexts)
+            if x_icl is None:
+                seq.append(x_markov)
             else:
-                probs = self.cond[last]
-                outputs_seq.append(0)
-                seq.append(rng.choice(self.tok_range, p=probs))
-        outputs_seq.append(0)
-        # pdb.set_trace()
+                seq.append(x_icl)
 
-        return seq, outputs_seq
 
-    def gen_seqs(self, rng: np.random.Generator) -> List[str]:
+    def gen_seqs(self, rng: np.random.Generator):
         while True:
             seq, outputs_seq = self.gen_seq(rng)
             yield (seq, outputs_seq)
@@ -221,3 +213,6 @@ def iterate_batches(dataset: Dataset,
     except:
         for p in processes:
             p.kill()
+
+
+def 
