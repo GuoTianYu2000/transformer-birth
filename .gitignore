@@ -1,3 +1,4 @@
 *.pt
 *.pkl
 *.out
+*.DS_Store
