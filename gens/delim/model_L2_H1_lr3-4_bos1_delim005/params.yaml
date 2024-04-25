@@ -39,5 +39,5 @@ eval_delta: 5
 log_norms: false
 log_probes: true
 num_data_workers: 60
-save_dir: /data/tianyu_guo/birth/gens/model_L2_H1_lr3-4_bos1_delim005
+save_dir: /data/tianyu_guo/birth/gens/delim/model_L2_H1_lr3-4_bos1_delim005
 root_dir: ''
