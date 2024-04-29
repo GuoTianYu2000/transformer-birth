@@ -18,27 +18,198 @@ logging.getLogger().setLevel(logging.INFO)
 class DataArgs:
     k: int = 0
     seq_length: int = 256
-    show_latents: bool = False
     fixed_special_toks: bool = False
     special_toks_offset: int = 0
     output_counter: bool = True
     no_repeat: bool = False
     bos_num: int = 1
-    delimiter_p: float = 0.05
+    delimiter_p: float = 0
 
 
 class Dataset:
     def __init__(self, args: DataArgs,
-                 train_test: Optional[str] = None,
-                 bigram_outs: Optional[bool] = False):
+                 train_test: Optional[str] = None,):
         self.k = args.k
         self.seq_length = args.seq_length
         self.bos_num = args.bos_num
-        self.show_latents = args.show_latents
         self.train_test = train_test
         self.output_counter = args.output_counter
         self.no_repeat = args.no_repeat
-        self.bigram_outs = bigram_outs
+        self.delimiter_p = args.delimiter_p
+
+        # init distributions
+        self.meta = pickle.load(open(f'data/meta_bos{self.bos_num}_d_random.pkl', 'rb'))
+        self.meta = self.add_bos(self.meta)
+        self.meta = self.add_delimiter(self.meta)
+        self.itos = self.meta['itos']
+        self.stoi = self.meta['stoi']
+        self.num_tokens = self.meta['vocab_size']
+        self.tok_range = list(np.arange(self.num_tokens))
+        self.marginal = self.meta['marginal']
+        self.cond = self.meta['cond']
+        self.bos = self.meta['bos']
+
+        # OOD
+        if self.train_test is not None:
+            self.n_train_toks = int(0.75 * self.num_tokens)
+        else:
+            self.n_train_toks = self.num_tokens
+
+        # special tokens
+        self.idxs = None
+        if args.fixed_special_toks:
+            # use unigram marginals
+            self.idxs = list(self.marginal.argsort()[self.num_tokens-args.special_toks_offset-self.k:self.num_tokens-args.special_toks_offset])
+
+    def decode(self, idxs: List[int]) -> str:
+        text = [self.itos[idx] for idx in idxs]
+        return text
+
+    def update_identity_context(self, x, contexts):
+        contexts[x] = x
+        return contexts
+
+    def update_previous_context(self, x, xp, contexts):
+        if x not in self.idxs:
+            return contexts
+        elif x in contexts.keys():
+            return contexts
+        else:
+            contexts[x] = xp
+            return contexts
+
+    # prepare the context for icl
+    def make_icl_context(self, triggers, rng, cond):
+        if self.no_repeat:  # prevent next token to be same as idx
+            pools = [self.tok_range.copy() for idx in triggers]
+            for i, idx in enumerate(triggers):
+                pools[i].remove(idx)
+        else:
+            pools = [self.tok_range for idx in triggers]
+        # outs = [rng.choice(self.tok_range) for idx in idxs]
+        outs = [rng.choice(pool, p=(cond[idx][pool] / cond[idx][pool].sum())) for pool, idx in zip(pools, triggers)]
+        context = [(t, o) for t, o in zip(triggers, outs)]
+        context = dict(context)
+        return context
+    
+    # (rely on make_icl_context) detect whether x in contexts.keys(), if so, just output the memory
+    def icl_transition(self, x, rng, contexts):
+        if x in contexts.keys():
+            return contexts[x]
+        else:
+            return None
+    
+    # standard markov transition
+    def markov_transition(self, x, rng):
+        if x is None:
+            return None
+        else:
+            probs = self.cond[x]
+            return rng.choice(self.tok_range, p=probs)
+
+    # gives a random conditional distribution for each seq (better to change to for each x)
+    def perturb_cond(self, cond, rng):
+        new_cond = []
+        for i in range(self.num_tokens):
+            new_cond.append(rng.dirichlet(cond[i]))
+        return new_cond
+
+    # (rely on perturb_cond) make cond transition using a random conditional distribution
+    def anti_memory_transition(self, x, rng, cond):
+        probs = cond[x]
+        return rng.choice(self.tok_range, p=probs)
+
+    # transition according to marginal
+    def iid_transition(self, x, rng, ):
+        return rng.choice(self.tok_range, p=self.marginal, size=self.k, replace=False)
+
+    # start and end are indices of the start and the end of the copy
+    def copy(self, x, rng, seq, start=None, end=None):
+        if start is None or end is None:
+            return None
+        return seq[start:(end+1)]
+
+    # initiate the bos tokens
+    def bos_init(self, ):
+        seq = []
+        for idx in range(self.num_tokens):
+            if self.itos[idx] in self.bos:
+                seq.append(idx)
+        return seq
+    
+    def no_trigger_init(self, rng):
+        x = self.iid_transition(None, rng)
+        count = 0
+        while x in self.idxs:
+            x = self.iid_transition(None, rng)
+            count += 1
+            if count > 100:
+                raise ValueError("weird behaviour in intial sampling")
+        return x
+
+    # This is the default dgp in Biette's. All subclasses only need to rewrite gen_seq
+    def gen_seq(self, rng: np.random.Generator):
+        cond = [[1 for _ in range(self.num_tokens)] for _ in range(self.num_tokens)]
+        contexts = self.make_icl_context(self.idxs, rng, cond)
+        seq = self.bos_init()
+        while len(seq) < self.seq_length:
+            x = seq[-1]
+            x_markov, x_icl = self.markov_transition(x, rng), self.icl_transition(x, rng, contexts)
+            if x_icl is None:
+                seq.append(x_markov)
+            else:
+                seq.append(x_icl)
+
+        return seq
+
+    def gen_seqs(self, rng: np.random.Generator):
+        while True:
+            seq = self.gen_seq(rng)
+            yield seq
+
+    def gen_batch(self, rng: np.random.Generator, batch_size: int):
+        seqs = []
+        for _ in range(batch_size):
+            seq = self.gen_seq(rng)
+            seqs += seq
+        x = np.array(seqs).reshape(batch_size, self.seq_length + 1)
+        return x
+    
+def iterate_batches(dataset: Dataset,
+                    batch_size: int = 20,
+                    num_workers: int = 60,
+                    seed: int = 42):
+    def worker(queue, rng):
+        while True:
+            x = dataset.gen_batch(rng, batch_size)
+            queue.put((x))
+
+    import multiprocessing as mp
+    q = mp.Queue(maxsize=1000)
+    processes = [mp.Process(target=worker, args=(q, np.random.default_rng([seed, i]))) for i in range(num_workers)]
+    for p in processes:
+        p.start()
+
+    seq = []
+    outputs_seq = []
+    count = 0
+    try:
+        while True:
+            x = q.get()
+            yield (x[:,:-1], x[:,1:])
+    except:
+        for p in processes:
+            p.kill()
+
+class MetaProcess:
+    def __init__(self, args: DataArgs,
+                 train_test: Optional[str] = None,):
+        self.k = args.k
+        self.seq_length = args.seq_length
+        self.bos_num = args.bos_num
+        self.train_test = train_test
+        self.output_counter = args.output_counter
+        self.no_repeat = args.no_repeat
         self.delimiter_p = args.delimiter_p
 
         # init distributions
@@ -48,11 +219,11 @@ class Dataset:
         self.itos = self.meta['itos']
         self.stoi = self.meta['stoi']
         self.num_tokens = self.meta['vocab_size']
+        
         self.tok_range = list(np.arange(self.num_tokens))
 
         # OOD
         if self.train_test is not None:
-            assert not self.bigram_outs  # this requires distributions over all tokens
             self.n_train_toks = int(0.75 * self.num_tokens)
         else:
             self.n_train_toks = self.num_tokens
@@ -76,83 +247,19 @@ class Dataset:
             # use unigram marginals
             self.idxs = list(self.marginal.argsort()[self.num_tokens-args.special_toks_offset-self.k:self.num_tokens-args.special_toks_offset])
 
-    def decode(self, idxs: List[int]) -> str:
-        text = [self.itos[idx] for idx in idxs]
-        return text
-
-    def icl_transition(self, x, rng, contexts):
-        if x in contexts.keys():
-            return contexts[x]
-        else:
-            return None
-    
-    def markov_transition(self, x, rng):
-        probs = self.cond[x]
-        return rng.choice(self.tok_range, p=probs)
-
-    # start and end are indices of the start and the end of the copy
-    def copy(self, x, rng, seq, start, end):
-        return seq[start:(end+1)]
-
-    def iid_transition(self, x, rng, ):
-        return rng.choice(self.tok_range, p=self.marginal, size=self.k, replace=False)
-    
-    def make_icl_context(self, triggers, rng):
-        if self.no_repeat:  # prevent next token to be same as idx
-            pools = [self.tok_range.copy() for idx in triggers]
-            for i, idx in enumerate(triggers):
-                pools[i].remove(idx)
-        else:
-            pools = [self.tok_range for idx in triggers]
-        # outs = [rng.choice(self.tok_range) for idx in idxs]
-        if self.bigram_outs:
-            outs = [rng.choice(pool, p=(self.cond[idx][pool] / self.cond[idx][pool].sum())) for pool, idx in zip(pools, triggers)]
-        else:
-            outs = [rng.choice(pool) for pool in pools]
-        context = [(t, o) for t, o in zip(triggers, outs)]
-        context = dict(context)
-        return context
-    
-    def bos_init(self, ):
+    def process(self,):
         seq = []
+        bos_token = [f'<s_{i}>' for i in range(self.bos_num)]
         for idx in range(self.num_tokens):
-            if self.itos[idx] == '<s>':
+            if self.itos[idx] in bos_token:
                 seq.append(idx)
-        return seq
-    
-    def gen_seq(self, rng: np.random.Generator):
-        contexts = self.make_icl_context(self.idxs, rng)
-        seq = self.bos_init()
-        while len(seq) < self.seq_length:
-            x = seq[-1]
-            x_markov, x_icl = self.markov_transition(x, rng), self.icl_transition(x, rng, contexts)
-            if x_icl is None:
-                seq.append(x_markov)
-            else:
-                seq.append(x_icl)
-
-
-    def gen_seqs(self, rng: np.random.Generator):
-        while True:
-            seq, outputs_seq = self.gen_seq(rng)
-            yield (seq, outputs_seq)
-
-    def gen_batch(self, rng: np.random.Generator, batch_size: int):
-        seqs = []
-        outs = []
-        for _ in range(batch_size):
-            seq, out = self.gen_seq(rng)
-            seqs += seq
-            outs += out
-        x = np.array(seqs).reshape(batch_size, self.seq_length + 1)
-        outs = np.array(outs).reshape(batch_size, self.seq_length + 1)
-        return x, outs
+        return {"marginal": self.marginal, "cond": self.cond, "itos": self.itos, "stoi": self.stoi, "vocab_size": self.num_tokens, "bos_num": self.bos_num, "delimiter_p": self.delimiter_p, "bos": seq, "delimiter": self.stoi['<d>']}
     
     # here to make sure that <s> generates a new token following unigrams, and nothing generates <s>, nor <s> gets included in unigrams
     def add_bos(self, meta):
         for i in range(self.bos_num):
             idx = meta['vocab_size']
-            tok = f'<s>'
+            tok = f'<s_{i}>'
             ref_pre = [(tok, 0) for tok in meta['unigrams'].keys()]
             ref_pre = dict(ref_pre)
             ref_post = meta['unigrams']
@@ -167,7 +274,7 @@ class Dataset:
         ref_pre = [(tok, 0) for tok in meta['unigrams'].keys()]
         ref_pre = dict(ref_pre)
         for (w1, w2), cnt in self.meta['bigrams'].items():
-            if w1 == '<s>':
+            if w1 in [f'<s_{i}>' for i in range(self.bos_num)]:
                 continue
             ref_pre[w1] += cnt
         for (w1, cnt) in ref_pre.items():
@@ -188,31 +295,91 @@ class Dataset:
             meta['bigrams'][(tok2, tok)] = ref_pre[tok2]
         return meta
 
-def iterate_batches(dataset: Dataset,
-                    batch_size: int = 20,
-                    num_workers: int = 60,
-                    seed: int = 42):
-    def worker(queue, rng):
-        while True:
-            x, outs = dataset.gen_batch(rng, batch_size)
-            queue.put((x, outs))
+class icl(Dataset):
+    def __init__(self, args: DataArgs,
+                 train_test: Optional[str] = None,):
+        super().__init__(args, train_test)
+        self.description = "ONLY use ICL. At each round, we detect whether the current token occurs before, if so, we predict the token itself"
+        self.expect = "(induction head (dormant when there's no repeated token)): detect whether the currect token occurs before"
+        # we do not want delimiter to to interfere the results
+        assert self.delimiter_p == 0
+    def gen_seq(self, rng: np.random.Generator):
+        seq = self.bos_init()
+        contexts = {}
+        while len(seq) < self.seq_length:
+            x = seq[-1]
+            x_icl = self.icl_transition(x, rng, contexts)
+            if x_icl is None:
+                x_iid = self.iid_transition(x, rng)
+                contexts = self.update_identity_context(x, contexts)
+                seq.append(x_iid)
+            else:
+                seq.append(x_icl)
+        return seq
+    
+    def special_test(self, seqs):
+        raise NotImplementedError
+    
+class markov(Dataset):
+    def __init__(self, args: DataArgs,
+                 train_test: Optional[str] = None,):
+        super().__init__(args, train_test,)
+        self.description = "ONLY use markov transition"
+        self.expect = "(None). No need for attention mechanism"
+    def gen_seq(self, rng: np.random.Generator):
+        seq = self.bos_init()
+        while len(seq) < self.seq_length:
+            x = seq[-1]
+            x_markov = self.markov_transition(x, rng)
+            seq.append(x_markov)
+        return seq
+    def special_test(self, seqs):
+        raise NotImplementedError  
+    
 
-    import multiprocessing as mp
-    q = mp.Queue(maxsize=1000)
-    processes = [mp.Process(target=worker, args=(q, np.random.default_rng([seed, i]))) for i in range(num_workers)]
-    for p in processes:
-        p.start()
+class dormant_copy(Dataset):
+    def __init__(self, args: DataArgs,
+                 train_test: Optional[str] = None,):
+        super().__init__(args, train_test,)
+        self.description = "ONLY use copy. In each seq, implement markov transition. At trigger token i, predict (i+1) with (i-1)."
+        self.expect = "(copy head, dormant when not on trigger tokens)."
+    def gen_seq(self, rng: np.random.Generator):
+        seq = self.bos_init()
+        seq += self.iid_transition(None, rng)
+        while len(seq) < self.seq_length:
+            x, xp = seq[-1], seq[-2]
+            x_markov, x_markovp = self.markov_transition(x, rng), self.markov_transition(xp, rng)
+            if x in self.idxs:
+                return x_markovp
+            else:
+                return x_markov
 
-    seq = []
-    outputs_seq = []
-    count = 0
-    try:
-        while True:
-            x, outs = q.get()
-            yield (x[:,:-1], x[:,1:], outs[:,:-1])
-    except:
-        for p in processes:
-            p.kill()
+        return seq
+    
+    def special_test(self, seqs):
+        raise NotImplementedError
 
 
-def 
+class dormant_Biette(Dataset):
+    def __init__(self, args: DataArgs,
+                 train_test: Optional[str] = None,):
+        super().__init__(args, train_test,)
+        self.description = "Biette's setting with ICL becomes copying the previous token of the first occurance of the trigger instead of the following token. CAVEAT1: we cannot control the previous tokens of triggers, so we use the previous token of the first trigger, which may be a problem. CAVEAT2: we use rejection sampling to avoid getting triggers on the intial token."
+        self.expect = "((L1: copy head, dormant when not on trigger tokens) -> L2: induction head, dormant when there's no repeated triggers)). When activated, the induction head will copy the information stored on the previous repeated trigger. Then use it to predict the next token."
+    def gen_seq(self, rng: np.random.Generator):
+        seq = self.bos_init()
+        seq += self.no_trigger_init(rng)
+        contexts = {}
+        while len(seq) < self.seq_length:
+            x, xp = seq[-1], seq[-2]
+            x_markov, x_icl = self.markov_transition(x, rng), self.icl_transition(x, rng, contexts)
+            contexts = self.update_previous_context(x, xp, contexts)
+            if x in self.idxs:
+                return x_icl
+            else:
+                return x_markov
+
+        return seq
+    
+    def special_test(self, seqs):
+        raise NotImplementedError
