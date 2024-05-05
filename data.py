@@ -16,30 +16,27 @@ logging.getLogger().setLevel(logging.INFO)
 
 @dataclass
 class DataArgs:
-    k: int = 0
+    k: int = 5
     seq_length: int = 256
-    fixed_special_toks: bool = False
+    fixed_special_toks: bool = True
     special_toks_offset: int = 0
-    output_counter: bool = True
     no_repeat: bool = False
     bos_num: int = 1
     delimiter_p: float = 0
 
 
-
 class Dataset:
-    def __init__(self, args: DataArgs,
+    def __init__(self, args: DataArgs, meta,
                  train_test: Optional[str] = None,):
         self.k = args.k
         self.seq_length = args.seq_length
         self.bos_num = args.bos_num
         self.train_test = train_test
-        self.output_counter = args.output_counter
         self.no_repeat = args.no_repeat
         self.delimiter_p = args.delimiter_p
 
         # init distributions
-        self.meta = pickle.load(open(f'data/meta_bos{self.bos_num}_d_random.pickle', 'rb'))
+        self.meta = meta
         # self.meta = self.add_bos(self.meta)
         # self.meta = self.add_delimiter(self.meta)
         self.itos = self.meta['itos']
@@ -47,7 +44,7 @@ class Dataset:
         self.num_tokens = self.meta['vocab_size']
         self.tok_range = list(np.arange(self.num_tokens))
         self.marginal = np.array(self.meta['marginal'])
-        self.cond = self.meta['cond']
+        self.cond = np.array(self.meta['cond'])
         self.bos = self.meta['bos']
 
         # OOD
@@ -81,6 +78,7 @@ class Dataset:
 
     # prepare the context for icl
     def make_icl_context(self, triggers, rng, cond):
+        # pdb.set_trace()
         if self.no_repeat:  # prevent next token to be same as idx
             pools = [self.tok_range.copy() for idx in triggers]
             for i, idx in enumerate(triggers):
@@ -122,7 +120,7 @@ class Dataset:
 
     # transition according to marginal
     def iid_transition(self, x, rng, ):
-        return rng.choice(self.tok_range, p=self.marginal, size=self.k, replace=False)
+        return rng.choice(self.tok_range, p=self.marginal,)
 
     # start and end are indices of the start and the end of the copy
     def copy(self, x, rng, seq, start=None, end=None):
@@ -134,7 +132,7 @@ class Dataset:
     def bos_init(self, ):
         seq = []
         for idx in range(self.num_tokens):
-            if self.itos[idx] in self.bos:
+            if idx in self.bos:
                 seq.append(idx)
         return seq
     
@@ -150,10 +148,10 @@ class Dataset:
 
     # This is the default dgp in Biette's. All subclasses only need to rewrite gen_seq
     def gen_seq(self, rng: np.random.Generator):
-        cond = [[1 for _ in range(self.num_tokens)] for _ in range(self.num_tokens)]
+        cond = np.array([[1 for _ in range(self.num_tokens)] for _ in range(self.num_tokens)])
         contexts = self.make_icl_context(self.idxs, rng, cond)
         seq = self.bos_init()
-        while len(seq) < self.seq_length:
+        while len(seq) <= self.seq_length:
             x = seq[-1]
             x_markov, x_icl = self.markov_transition(x, rng), self.icl_transition(x, rng, contexts)
             if x_icl is None:
@@ -209,7 +207,6 @@ class MetaProcess:
         self.seq_length = args.seq_length
         self.bos_num = args.bos_num
         self.train_test = train_test
-        self.output_counter = args.output_counter
         self.no_repeat = args.no_repeat
         self.delimiter_p = args.delimiter_p
         self.args = args
@@ -305,10 +302,11 @@ class icl(Dataset):
     def gen_seq(self, rng: np.random.Generator):
         seq = self.bos_init()
         contexts = {}
-        while len(seq) < self.seq_length:
+        while len(seq) <= self.seq_length:
             x = seq[-1]
             x_icl = self.icl_transition(x, rng, contexts)
             if x_icl is None:
+                # pdb.set_trace()
                 x_iid = self.iid_transition(x, rng)
                 contexts = self.update_identity_context(x, contexts)
                 seq.append(x_iid)
@@ -327,7 +325,7 @@ class markov(Dataset):
         self.expect = "(None). No need for attention mechanism"
     def gen_seq(self, rng: np.random.Generator):
         seq = self.bos_init()
-        while len(seq) < self.seq_length:
+        while len(seq) <= self.seq_length:
             x = seq[-1]
             x_markov = self.markov_transition(x, rng)
             seq.append(x_markov)
@@ -345,7 +343,7 @@ class dormant_copy(Dataset):
     def gen_seq(self, rng: np.random.Generator):
         seq = self.bos_init()
         seq += self.iid_transition(None, rng)
-        while len(seq) < self.seq_length:
+        while len(seq) <= self.seq_length:
             x, xp = seq[-1], seq[-2]
             x_markov, x_markovp = self.markov_transition(x, rng), self.markov_transition(xp, rng)
             if x in self.idxs:
@@ -359,6 +357,7 @@ class dormant_copy(Dataset):
         raise NotImplementedError
 
 
+# I feel this dgp is not that necessary since it only adds a new procedure (L2) in dormant_copy.
 class dormant_Biette(Dataset):
     def __init__(self, args: DataArgs,
                  train_test: Optional[str] = None,):
@@ -369,7 +368,7 @@ class dormant_Biette(Dataset):
         seq = self.bos_init()
         seq += self.no_trigger_init(rng)
         contexts = {}
-        while len(seq) < self.seq_length:
+        while len(seq) <= self.seq_length:
             x, xp = seq[-1], seq[-2]
             x_markov, x_icl = self.markov_transition(x, rng), self.icl_transition(x, rng, contexts)
             contexts = self.update_previous_context(x, xp, contexts)
@@ -382,3 +381,8 @@ class dormant_Biette(Dataset):
     
     def special_test(self, seqs):
         raise NotImplementedError
+
+name_to_data = {'icl': icl, "markov": markov, "dormant_copy": dormant_copy}
+
+def make_dataset(cfg):
+    return name_to_data[cfg.data_name](cfg.data_args, train_test=None)
