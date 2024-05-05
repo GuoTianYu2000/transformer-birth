@@ -15,6 +15,48 @@ from torch.nn import functional as F
 from typing import List, Optional, Tuple
 
 
+class forward_hook():
+    def __init__(self, target_layers, target_name, ) -> None:
+        self.target_layers = target_layers
+        self.target_name = target_name
+
+    def __call__(self, layer_idx, name, func, *args):
+        if self.target_layers is not None and layer_idx in self.target_layers and name == self.target_name:
+            # no rope
+            return self.intervention(func, *args)
+        else:
+            # not zero-out layers
+            if func is None:
+                return args[0]
+            else:
+                return func(*args)
+        
+    def intervention(self, func, *args):
+        return args
+
+class no_rope_hook(forward_hook):
+    def __init__(self, target_layers,) -> None:
+        super().__init__(target_layers, target_name = "qk_rope", )
+    def intervention(self, func, *args):
+        return args[0], args[1]
+
+class check_rope_hook(forward_hook):
+    def __init__(self, target_layers, ) -> None:
+        super().__init__(target_layers, target_name = "qk_rope", )
+    def intervention(self, func, *args):
+        print(args[2], args[3])
+        return args[0], args[1]
+    
+class zero_out_hook(forward_hook):
+    def __init__(self, target_layers, target_head=16, ) -> None:
+        super().__init__(target_layers, target_name = "attn_weights", )
+        self.target_head = target_head
+    def intervention(self, func, *args):
+        attn_weights = func(*args)
+        attn_weights[:, self.target_head, :, :] = torch.zeros_like(attn_weights[:, self.target_head, :, :])
+        return attn_weights
+
+
 @dataclass
 class ModelArgs:
     vocab_size: int = -1  # defined later
@@ -88,6 +130,43 @@ class Attention(nn.Module):
 
         output = output.reshape(bs, slen, -1)
         return self.wo(output), scores
+    
+    def modified_forward(self,
+                layer_idx: int,
+                hook: forward_hook,
+                x: torch.Tensor,
+                mask: torch.Tensor):
+        attn_outputs = {}
+        bs, slen, _ = x.shape
+        assert mask is not None
+
+        func_wq = lambda x: self.wq(x).view(bs, slen, self.n_heads, self.head_dim).transpose(1, 2)
+        xq = hook(layer_idx, "query_states", func_wq, x)
+        attn_outputs["query_states"] = xq
+        func_wk = lambda x: self.wk(x).view(bs, slen, self.n_heads, self.head_dim).transpose(1, 2)
+        xk = hook(layer_idx, "key_states", func_wk, x)
+        attn_outputs["key_states"] = xk
+        func_wv = lambda x: self.wv(x).view(bs, slen, self.n_heads, self.head_dim).transpose(1, 2)
+        xv = hook(layer_idx, "value_states", func_wv, x)
+        attn_outputs["value_states"] = xv
+
+        func_scores = lambda xq, xk: torch.matmul(xq, xk.transpose(2, 3)) / math.sqrt(self.head_dim) + mask
+        scores = hook(layer_idx, "attn_logits", func_scores, xq, xk)
+        attn_outputs["attn_logits"] = scores
+
+
+        func_weights = lambda scores: F.softmax(scores.float(), dim=-1).type_as(x)
+        scores = hook(layer_idx, "attn_weights", func_weights, xq, xk)
+        attn_outputs["attn_weights"] = scores
+
+        func_attns = lambda scores, xv: torch.matmul(scores, xv).transpose(1, 2) # (bs, slen, n_heads, head_dim)
+        output = hook(layer_idx, "attn_output_per_head", func_attns, scores, xv)
+        attn_outputs["attn_output_per_head"] = output
+
+        func_output = lambda output: self.wo(output.reshape(bs, slen, -1))
+        output = hook(layer_idx, "attn_output_proj", func_output, output)
+        attn_outputs["attn_output_proj"] = output
+        return output, scores, attn_outputs
 
 
 class FeedForward(nn.Module):
@@ -223,11 +302,20 @@ class Transformer(nn.Module):
             # self.tok_embeddings.weight.data /= math.sqrt(args.dim)
             self.output.weight = self.tok_embeddings.weight
 
+    def apply_pe(self, h, N, ):
+        if self.sin_cos:
+            h = h + self.pe.unsqueeze(0)
+        else:
+            h = h + self.pos_embeddings(torch.arange(N, device=h.device).view(1, N))
+        return h
+
+
     def forward(self, tokens: torch.Tensor, return_layer: Optional[int] = None, before_ffn: bool = False):
         B, N = tokens.shape
 
         # embedding layer
         h = self.tok_embeddings(tokens)
+
         if self.sin_cos:
             h = h + self.pe.unsqueeze(0)
         else:
@@ -245,6 +333,33 @@ class Transformer(nn.Module):
             if return_layer == i + 1:
                 return layer(h, mask, no_ffn=before_ffn)
             h = layer(h, mask)
+            # pdb.set_trace()
+
+        # output layer
+        if self.norm is not None:
+            h = self.norm(h)
+        output = self.output(h)
+        return output.float()
+
+    def modified_forward_with_hook(self, tokens: torch.Tensor, hook: forward_hook):
+        outputs_list = []
+        B, N = tokens.shape
+
+        # embedding layer
+        outputs_layer = {}
+        h = hook(0, "input", self.tok_embeddings, tokens)
+        outputs_layer["input"] = h
+        # TODO: this may fail
+        h = hook(0, "input_post_pos", self.apply_pe, h, N)
+        outputs_layer["input_post_pos"] = h
+
+        # causal mask
+        mask = torch.full((1, 1, N, N), float('-inf'), device=tokens.device)
+        mask = torch.triu(mask, diagonal=1).type_as(h)
+
+        # transformer blocks
+        for i, modified_layer in enumerate(self.layers):
+            h = modified_layer(h, mask)
             # pdb.set_trace()
 
         # output layer
@@ -281,10 +396,12 @@ class Transformer(nn.Module):
 
         # embedding layer
         h = self.tok_embeddings(tokens)
+
         if self.sin_cos:
             h = h + self.pe.unsqueeze(0)
         else:
             h = h + self.pos_embeddings(torch.arange(N, device=tokens.device).view(1, N))
+        
 
         # causal mask
         mask = torch.full((1, 1, N, N), float('-inf'), device=tokens.device)

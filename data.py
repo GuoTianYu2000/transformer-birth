@@ -26,6 +26,7 @@ class DataArgs:
     delimiter_p: float = 0
 
 
+
 class Dataset:
     def __init__(self, args: DataArgs,
                  train_test: Optional[str] = None,):
@@ -38,14 +39,14 @@ class Dataset:
         self.delimiter_p = args.delimiter_p
 
         # init distributions
-        self.meta = pickle.load(open(f'data/meta_bos{self.bos_num}_d_random.pkl', 'rb'))
-        self.meta = self.add_bos(self.meta)
-        self.meta = self.add_delimiter(self.meta)
+        self.meta = pickle.load(open(f'data/meta_bos{self.bos_num}_d_random.pickle', 'rb'))
+        # self.meta = self.add_bos(self.meta)
+        # self.meta = self.add_delimiter(self.meta)
         self.itos = self.meta['itos']
         self.stoi = self.meta['stoi']
         self.num_tokens = self.meta['vocab_size']
         self.tok_range = list(np.arange(self.num_tokens))
-        self.marginal = self.meta['marginal']
+        self.marginal = np.array(self.meta['marginal'])
         self.cond = self.meta['cond']
         self.bos = self.meta['bos']
 
@@ -59,7 +60,7 @@ class Dataset:
         self.idxs = None
         if args.fixed_special_toks:
             # use unigram marginals
-            self.idxs = list(self.marginal.argsort()[self.num_tokens-args.special_toks_offset-self.k:self.num_tokens-args.special_toks_offset])
+            self.idxs = list(np.array(self.marginal).argsort()[self.num_tokens-args.special_toks_offset-self.k:self.num_tokens-args.special_toks_offset])
 
     def decode(self, idxs: List[int]) -> str:
         text = [self.itos[idx] for idx in idxs]
@@ -211,6 +212,7 @@ class MetaProcess:
         self.output_counter = args.output_counter
         self.no_repeat = args.no_repeat
         self.delimiter_p = args.delimiter_p
+        self.args = args
 
         # init distributions
         self.meta = pickle.load(open('data/meta.pkl', 'rb'))
@@ -233,6 +235,7 @@ class MetaProcess:
         for k, cnt in self.meta['unigrams'].items():
             self.marginal[self.stoi[k]] = cnt
         self.marginal /= self.marginal.sum()
+        self.marginal = self.marginal.tolist()
 
         # conditionals
         self.cond = [np.zeros(self.num_tokens) for _ in range(self.num_tokens)]
@@ -240,12 +243,7 @@ class MetaProcess:
             self.cond[self.stoi[w1]][self.stoi[w2]] += cnt
         for i in range(self.num_tokens):
             self.cond[i] /= self.cond[i].sum()
-
-        # special tokens
-        self.idxs = None
-        if args.fixed_special_toks:
-            # use unigram marginals
-            self.idxs = list(self.marginal.argsort()[self.num_tokens-args.special_toks_offset-self.k:self.num_tokens-args.special_toks_offset])
+            self.cond[i] = self.cond[i].tolist()
 
     def process(self,):
         seq = []
@@ -253,6 +251,7 @@ class MetaProcess:
         for idx in range(self.num_tokens):
             if self.itos[idx] in bos_token:
                 seq.append(idx)
+        
         return {"marginal": self.marginal, "cond": self.cond, "itos": self.itos, "stoi": self.stoi, "vocab_size": self.num_tokens, "bos_num": self.bos_num, "delimiter_p": self.delimiter_p, "bos": seq, "delimiter": self.stoi['<d>']}
     
     # here to make sure that <s> generates a new token following unigrams, and nothing generates <s>, nor <s> gets included in unigrams
