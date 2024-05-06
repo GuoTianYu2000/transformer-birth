@@ -58,7 +58,9 @@ if __name__ == '__main__':
         )
     cfg = OmegaConf.merge(OmegaConf.structured(args), OmegaConf.from_cli())
     cfg.model_args.bos_num = cfg.data_args.bos_num
-    ds = make_dataset(cfg)
+    with open("/data/tianyu_guo/birth/data/bos1_d0/meta.pickle", "rb") as f:
+        meta_info = pickle.load(f)
+    ds = make_dataset(cfg, meta_info)
     cfg.model_args.vocab_size = ds.num_tokens
 
     if cfg.save_dir is not None:
