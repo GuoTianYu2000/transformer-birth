@@ -140,6 +140,8 @@ class Attention(nn.Module):
         bs, slen, _ = x.shape
         assert mask is not None
 
+        x = hook(layer_idx, "attn_input", None, x)
+        attn_outputs["attn_input"] = x
         func_wq = lambda x: self.wq(x).view(bs, slen, self.n_heads, self.head_dim).transpose(1, 2)
         xq = hook(layer_idx, "query_states", func_wq, x)
         attn_outputs["query_states"] = xq
@@ -166,6 +168,9 @@ class Attention(nn.Module):
         func_output = lambda output: self.wo(output.reshape(bs, slen, -1))
         output = hook(layer_idx, "attn_output_proj", func_output, output)
         attn_outputs["attn_output_proj"] = output
+
+        output = hook(layer_idx, "attn_output", None, output)
+        attn_outputs["attn_output"] = output
         return output, scores, attn_outputs
 
 
@@ -233,10 +238,11 @@ class TransformerBlock(nn.Module):
             if return_scores:
                 return scores
             h = x + h
+            res = h
             if no_ffn:
                 return h
             else:
-                return h + self.ff(self.ff_norm(x))
+                return res + self.ff(self.ff_norm(h))
         else:
             h, scores = self.attention(x, mask)
             if return_scores:
@@ -246,6 +252,46 @@ class TransformerBlock(nn.Module):
                 return h
             else:
                 return self.ff_norm(h + self.ff(h))
+            
+    def modified_forward(self,
+                layer_idx: int,
+                hook: forward_hook,
+                x: torch.Tensor,
+                mask: torch.Tensor,
+                return_scores: bool = False,
+                no_ffn: bool = False):
+        outputs_layer = {}
+        no_ffn = no_ffn or self.no_ffn
+        h = hook(layer_idx, "input", None, x)
+        outputs_layer["input"] = h
+        if self.pre_norm:
+            h = hook(layer_idx, "input_norm", self.attention_norm, h)
+            outputs_layer["input_norm"] = h
+            h, scores, attn_outputs = self.attention.modified_forward(layer_idx, hook, h, mask)
+            outputs_layer.update(attn_outputs)
+            func_add_res = lambda x, h: x + h
+            h = hook(layer_idx, "attn_output_add_res", func_add_res, x, h)
+            outputs_layer["attn_output_add_res"] = h
+            if no_ffn:
+                h = hook(layer_idx, "no_ffn", None, h)
+                outputs_layer["no_ffn"] = h
+            else:
+                h = hook(layer_idx, "mlp_input_pre_norm", None, h)
+                outputs_layer["mlp_input_pre_norm"] = h
+                res = h
+                h = hook(layer_idx, "mlp_input_norm", self.ff_norm, h)
+                outputs_layer["mlp_input_norm"] = h
+                h = hook(layer_idx, "mlp_input", None, h)
+                outputs_layer["mlp_input"] = h
+                h = hook(layer_idx, "mlp_output", self.ff, h)
+                outputs_layer["mlp_output"] = h
+                h = hook(layer_idx, "mlp_output_add_res", func_add_res, res, h)
+                outputs_layer["mlp_output_add_res"] = h
+            h = hook(layer_idx, "output", None, h)
+            outputs_layer["output"] = h
+            return h, outputs_layer
+        else:
+            raise ValueError("We do not use post-norm in this experiment")
 
 
 class Transformer(nn.Module):
@@ -347,26 +393,30 @@ class Transformer(nn.Module):
 
         # embedding layer
         outputs_layer = {}
-        h = hook(0, "input", self.tok_embeddings, tokens)
-        outputs_layer["input"] = h
+        h = hook(0, "embed", self.tok_embeddings, tokens)
+        outputs_layer["embed"] = h
         # TODO: this may fail
-        h = hook(0, "input_post_pos", self.apply_pe, h, N)
-        outputs_layer["input_post_pos"] = h
+        h = hook(0, "embed_post_pos", self.apply_pe, h, N)
+        outputs_layer["embed_post_pos"] = h
+        outputs_list.append(outputs_layer)
 
         # causal mask
         mask = torch.full((1, 1, N, N), float('-inf'), device=tokens.device)
         mask = torch.triu(mask, diagonal=1).type_as(h)
 
         # transformer blocks
-        for i, modified_layer in enumerate(self.layers):
-            h = modified_layer(h, mask)
+        for i, layer in enumerate(self.layers):
+            h, outputs_layer = layer.modified_forward(h, mask)
+            outputs_list[-1].update(outputs_layer)
+            outputs_list.append({})
             # pdb.set_trace()
 
         # output layer
-        if self.norm is not None:
-            h = self.norm(h)
-        output = self.output(h)
-        return output.float()
+        h = hook(i, "output_last_layer_norm", self.norm, h)
+        outputs_list[-1]["output_last_layer_norm"] = h
+        output = hook(i, "output_last_layer_pred", self.output, h)
+        outputs_list[-1]["output_last_layer_pred"] = output
+        return output, outputs_list
 
     def forward_ff_only(self, tokens: torch.Tensor):
         B, N = tokens.shape

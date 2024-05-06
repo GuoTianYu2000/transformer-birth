@@ -292,9 +292,9 @@ class MetaProcess:
         return meta
 
 class icl(Dataset):
-    def __init__(self, args: DataArgs,
+    def __init__(self, args: DataArgs, meta,
                  train_test: Optional[str] = None,):
-        super().__init__(args, train_test)
+        super().__init__(args, meta, train_test)
         self.description = "ONLY use ICL. At each round, we detect whether the current token occurs before, if so, we predict the token itself"
         self.expect = "(induction head (dormant when there's no repeated token)): detect whether the currect token occurs before"
         # we do not want delimiter to to interfere the results
@@ -318,9 +318,9 @@ class icl(Dataset):
         raise NotImplementedError
     
 class markov(Dataset):
-    def __init__(self, args: DataArgs,
+    def __init__(self, args: DataArgs, meta,
                  train_test: Optional[str] = None,):
-        super().__init__(args, train_test,)
+        super().__init__(args, meta, train_test,)
         self.description = "ONLY use markov transition"
         self.expect = "(None). No need for attention mechanism"
     def gen_seq(self, rng: np.random.Generator):
@@ -335,21 +335,21 @@ class markov(Dataset):
     
 
 class dormant_copy(Dataset):
-    def __init__(self, args: DataArgs,
+    def __init__(self, args: DataArgs, meta,
                  train_test: Optional[str] = None,):
-        super().__init__(args, train_test,)
+        super().__init__(args, meta, train_test,)
         self.description = "ONLY use copy. In each seq, implement markov transition. At trigger token i, predict (i+1) with (i-1)."
         self.expect = "(copy head, dormant when not on trigger tokens)."
     def gen_seq(self, rng: np.random.Generator):
         seq = self.bos_init()
-        seq += self.iid_transition(None, rng)
+        seq.append(self.iid_transition(None, rng))
         while len(seq) <= self.seq_length:
             x, xp = seq[-1], seq[-2]
             x_markov, x_markovp = self.markov_transition(x, rng), self.markov_transition(xp, rng)
             if x in self.idxs:
-                return x_markovp
+                seq.append(x_markovp)
             else:
-                return x_markov
+                seq.append(x_markov)
 
         return seq
     
@@ -359,9 +359,9 @@ class dormant_copy(Dataset):
 
 # I feel this dgp is not that necessary since it only adds a new procedure (L2) in dormant_copy.
 class dormant_Biette(Dataset):
-    def __init__(self, args: DataArgs,
+    def __init__(self, args: DataArgs, meta,
                  train_test: Optional[str] = None,):
-        super().__init__(args, train_test,)
+        super().__init__(args, meta, train_test,)
         self.description = "Biette's setting with ICL becomes copying the previous token of the first occurance of the trigger instead of the following token. CAVEAT1: we cannot control the previous tokens of triggers, so we use the previous token of the first trigger, which may be a problem. CAVEAT2: we use rejection sampling to avoid getting triggers on the intial token."
         self.expect = "((L1: copy head, dormant when not on trigger tokens) -> L2: induction head, dormant when there's no repeated triggers)). When activated, the induction head will copy the information stored on the previous repeated trigger. Then use it to predict the next token."
     def gen_seq(self, rng: np.random.Generator):
@@ -384,5 +384,5 @@ class dormant_Biette(Dataset):
 
 name_to_data = {'icl': icl, "markov": markov, "dormant_copy": dormant_copy}
 
-def make_dataset(cfg):
-    return name_to_data[cfg.data_name](cfg.data_args, train_test=None)
+def make_dataset(cfg, meta):
+    return name_to_data[cfg.data_name](cfg.data_args, meta, train_test=None, )
