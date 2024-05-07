@@ -431,7 +431,7 @@ class dormant_Biette(Dataset):
     def special_test(self, seqs):
         raise NotImplementedError
 
-name_to_data = {'icl': icl, "markov": markov, "dormant_copy": dormant_copy}
+name_to_data = {'icl': icl, "markov": markov, "dormant_copy": dormant_copy, "dormant_copy_2": dormant_copy_2}
 
 def make_dataset(cfg, meta):
     return name_to_data[cfg.data_name](cfg.data_args, meta, train_test=None, )
