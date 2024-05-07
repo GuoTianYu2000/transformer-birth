@@ -63,6 +63,9 @@ class Dataset:
         text = [self.itos[idx] for idx in idxs]
         return text
 
+    def uniform_transition(self, rng, subset):
+        return rng.choice(subset)
+
     def update_identity_context(self, x, contexts):
         contexts[x] = x
         return contexts
@@ -137,13 +140,9 @@ class Dataset:
         return seq
     
     def no_trigger_init(self, rng):
-        x = self.iid_transition(None, rng)
-        count = 0
-        while x in self.idxs:
-            x = self.iid_transition(None, rng)
-            count += 1
-            if count > 100:
-                raise ValueError("weird behaviour in intial sampling")
+        # tianyu: the i<=64 part is a bit hacky
+        subset = [i for i in self.tok_range if i not in self.idxs and i <= 64]
+        x = self.uniform_transition(rng, subset)
         return x
 
     def make_no_trigger_cond(self, zero_out_idxs):
