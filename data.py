@@ -356,6 +356,27 @@ class dormant_copy(Dataset):
     def special_test(self, seqs):
         raise NotImplementedError
 
+class dormant_copy_2(Dataset):
+    def __init__(self, args: DataArgs, meta,
+                 train_test: Optional[str] = None,):
+        super().__init__(args, meta, train_test,)
+        self.description = "ONLY use copy. In each seq, implement markov transition. At trigger token i, predict (i+1) with copying (i-1)."
+        self.expect = "(copy head, dormant when not on trigger tokens)."
+    def gen_seq(self, rng: np.random.Generator):
+        seq = self.bos_init()
+        seq.append(self.no_trigger_init(rng))
+        while len(seq) <= self.seq_length:
+            x, xp = seq[-1], seq[-2]
+            x_markov = self.markov_transition(x, rng)
+            if x in self.idxs:
+                seq.append(xp)
+            else:
+                seq.append(x_markov)
+
+        return seq
+    
+    def special_test(self, seqs):
+        raise NotImplementedError
 
 # I feel this dgp is not that necessary since it only adds a new procedure (L2) in dormant_copy.
 class dormant_Biette(Dataset):
