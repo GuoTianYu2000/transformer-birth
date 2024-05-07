@@ -32,7 +32,7 @@ class forward_hook():
                 return func(*args)
         
     def intervention(self, func, *args):
-        return args
+        return args[0]
 
 class no_rope_hook(forward_hook):
     def __init__(self, target_layers,) -> None:
@@ -158,7 +158,7 @@ class Attention(nn.Module):
 
 
         func_weights = lambda scores: F.softmax(scores.float(), dim=-1).type_as(x)
-        scores = hook(layer_idx, "attn_weights", func_weights, xq, xk)
+        scores = hook(layer_idx, "attn_weights", func_weights, scores)
         attn_outputs["attn_weights"] = scores
 
         func_attns = lambda scores, xv: torch.matmul(scores, xv).transpose(1, 2) # (bs, slen, n_heads, head_dim)
@@ -258,7 +258,6 @@ class TransformerBlock(nn.Module):
                 hook: forward_hook,
                 x: torch.Tensor,
                 mask: torch.Tensor,
-                return_scores: bool = False,
                 no_ffn: bool = False):
         outputs_layer = {}
         no_ffn = no_ffn or self.no_ffn
@@ -291,8 +290,31 @@ class TransformerBlock(nn.Module):
             outputs_layer["output"] = h
             return h, outputs_layer
         else:
-            raise ValueError("We do not use post-norm in this experiment")
-
+            h, scores, attn_outputs = self.attention.modified_forward(layer_idx, hook, h, mask)
+            outputs_layer.update(attn_outputs)
+            func_add_res = lambda x, h: x + h
+            h = hook(layer_idx, "attn_output_add_res", func_add_res, x, h)
+            outputs_layer["attn_output_add_res"] = h
+            if no_ffn:
+                h = hook(layer_idx, "no_ffn", None, h)
+                outputs_layer["no_ffn"] = h
+            else:
+                h = hook(layer_idx, "mlp_input_pre_norm", None, h)
+                outputs_layer["mlp_input_pre_norm"] = h
+                res = h
+                h = hook(layer_idx, "mlp_input_norm", self.attention_norm, h)
+                outputs_layer["mlp_input_norm"] = h
+                h = hook(layer_idx, "mlp_input", None, h)
+                outputs_layer["mlp_input"] = h
+                h = hook(layer_idx, "mlp_output", self.ff, h)
+                outputs_layer["mlp_output"] = h
+                h = hook(layer_idx, "mlp_output_add_res", func_add_res, res, h)
+                outputs_layer["mlp_output_add_res"] = h
+            h = hook(layer_idx, "output", None, h)
+            outputs_layer["output"] = h
+            h = hook(layer_idx, "output_norm", self.ff_norm, h)
+            outputs_layer["output_norm"] = h
+            return h, outputs_layer
 
 class Transformer(nn.Module):
     def __init__(self, args: ModelArgs):
@@ -395,6 +417,7 @@ class Transformer(nn.Module):
         outputs_layer = {}
         h = hook(0, "embed", self.tok_embeddings, tokens)
         outputs_layer["embed"] = h
+        # pdb.set_trace()
         # TODO: this may fail
         h = hook(0, "embed_post_pos", self.apply_pe, h, N)
         outputs_layer["embed_post_pos"] = h
@@ -406,7 +429,7 @@ class Transformer(nn.Module):
 
         # transformer blocks
         for i, layer in enumerate(self.layers):
-            h, outputs_layer = layer.modified_forward(h, mask)
+            h, outputs_layer = layer.modified_forward(i, hook, h, mask)
             outputs_list[-1].update(outputs_layer)
             outputs_list.append({})
             # pdb.set_trace()

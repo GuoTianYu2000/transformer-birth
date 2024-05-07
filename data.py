@@ -57,7 +57,7 @@ class Dataset:
         self.idxs = None
         if args.fixed_special_toks:
             # use unigram marginals
-            self.idxs = list(np.array(self.marginal).argsort()[self.num_tokens-args.special_toks_offset-self.k:self.num_tokens-args.special_toks_offset])
+            self.idxs = list(np.array(self.marginal).argsort()[self.num_tokens-args.special_toks_offset-self.k:self.num_tokens-args.special_toks_offset])        
 
     def decode(self, idxs: List[int]) -> str:
         text = [self.itos[idx] for idx in idxs]
@@ -114,7 +114,7 @@ class Dataset:
         return new_cond
 
     # (rely on perturb_cond) make cond transition using a random conditional distribution
-    def anti_memory_transition(self, x, rng, cond):
+    def custom_markov(self, x, rng, cond):
         probs = cond[x]
         return rng.choice(self.tok_range, p=probs)
 
@@ -145,6 +145,36 @@ class Dataset:
             if count > 100:
                 raise ValueError("weird behaviour in intial sampling")
         return x
+
+    def make_no_trigger_cond(self, zero_out_idxs):
+        cond = self.cond.copy()
+        for i in range(self.num_tokens):
+            cond[i][zero_out_idxs] = 0
+            if cond[i].sum() == 0:
+                continue
+            cond[i] /= cond[i].sum()
+        return cond
+    
+    def make_subset_cond(self, subset):
+        cond = self.cond.copy()
+        for i in range(self.num_tokens):
+            cond[i] = 0
+            if i in subset or i in self.bos:
+                cond[i][subset] = 1/len(subset)
+        return cond
+
+    def no_trigger_gen_seq(self, rng: np.random.Generator, subset):
+        seq = self.bos_init()
+        cond = self.make_subset_cond(subset)
+        while len(seq) <= self.seq_length:
+            x = seq[-1]
+            x_markov = self.custom_markov(x, rng, cond)
+            if x in self.idxs:
+                continue
+            else:
+                seq.append(x_markov)
+        return seq
+
 
     # This is the default dgp in Biette's. All subclasses only need to rewrite gen_seq
     def gen_seq(self, rng: np.random.Generator):
@@ -350,7 +380,6 @@ class dormant_copy(Dataset):
                 seq.append(x_markovp)
             else:
                 seq.append(x_markov)
-
         return seq
     
     def special_test(self, seqs):
