@@ -23,6 +23,7 @@ class DataArgs:
     no_repeat: bool = False
     bos_num: int = 1
     delimiter_p: float = 0
+    mix_p: float = 0
 
 
 class Dataset:
@@ -46,6 +47,7 @@ class Dataset:
         self.marginal = np.array(self.meta['marginal'])
         self.cond = np.array(self.meta['cond'])
         self.bos = self.meta['bos']
+        self.delimiter = self.meta['delimiter']
 
         # OOD
         if self.train_test is not None:
@@ -65,6 +67,7 @@ class Dataset:
 
     def uniform_transition(self, rng, subset):
         return rng.choice(subset)
+    
 
     def update_identity_context(self, x, contexts):
         contexts[x] = x
@@ -116,9 +119,13 @@ class Dataset:
             new_cond.append(rng.dirichlet(cond[i]))
         return new_cond
 
-    # (rely on perturb_cond) make cond transition using a random conditional distribution
+    # It generates next token with customed conditional probabilities
     def custom_markov(self, x, rng, cond):
         probs = cond[x]
+        return rng.choice(self.tok_range, p=probs)
+
+    # It generates next token with customed probabilities
+    def custom_iid(self, x, rng, probs):
         return rng.choice(self.tok_range, p=probs)
 
     # transition according to marginal
@@ -139,12 +146,14 @@ class Dataset:
                 seq.append(idx)
         return seq
     
+    # It deletes trigger tokens in marginal and re-normalize probs to get the transition probabilities
     def no_trigger_init(self, rng):
-        # tianyu: the i<=64 part is a bit hacky
-        subset = [i for i in self.tok_range if i not in self.idxs and i <= 64]
-        x = self.uniform_transition(rng, subset)
-        return x
+        probs = self.marginal.copy()
+        probs[self.idxs] = 0
+        probs = probs / probs.sum()
+        return probs
 
+    # it causes problem since some tokens only predict the trigger tokens
     def make_no_trigger_cond(self, zero_out_idxs):
         cond = self.cond.copy()
         for i in range(self.num_tokens):
@@ -154,6 +163,7 @@ class Dataset:
             cond[i] /= cond[i].sum()
         return cond
     
+    # It makes new conditional probabilities to be uniform in a given subset of tokens
     def make_subset_cond(self, subset):
         cond = self.cond.copy()
         for i in range(self.num_tokens):
@@ -161,7 +171,55 @@ class Dataset:
             if i in subset or i in self.bos:
                 cond[i][subset] = 1/len(subset)
         return cond
+    
+    """These functions are the first mechanism to generate the change of context delimiter. It randomly forces a delimtier token in the sequences. Since it has contradictions with the copy previous token mechanism, we stop using it."""
+    # It generates a permutation of the conditional probabilities for a given list of subset
+    def permute_cond(self, rng, subset):
+        cond = self.cond.copy()
+        permute_subset = [idx for idx in subset[1:]] + [subset[0]]
+        cond[subset] = self.cond[permute_subset]
+        return cond
 
+    # It uniformly samples from self.max_length and use it the location for the change of context delimiter
+    def get_delimiter_pos(self, rng):
+        start = 5
+        end = round(self.seq_length * 2 / 3)
+        return rng.choice(list(range(start, end)))
+    
+    # It generates the delimiter when the delimiter_pos is reached
+    def delimiter_transition(self, x, rng, idx, delimiter_pos):
+        if idx == delimiter_pos:
+            return self.stoi['<d>']
+        else:
+            return None
+        
+    """The second way is to use a fixed probability to generate the delimiter. The complication is that we need to set the probability to 0 after the first delimiter is generated."""
+    def permute(self, subset):
+        permute_subset = [idx for idx in subset[1:]] + [subset[0]]
+        return permute_subset
+    
+    def permute_cond_no_delim(self, rng, subset):
+        cond = self.cond.copy()
+        for i in self.tok_range:
+            cond[i, self.delimiter] = 0
+            cond[i] = cond[i] / cond[i].sum()
+        permute_subset = self.permute(subset)
+        for i, n in enumerate(subset):
+            if i < len(subset)-1:
+                shift = permute_subset[i]
+                cond[[n, shift]] = cond[[shift, n]]
+                cond[:, [n, shift]] = cond[:, [shift, n]]
+        return cond
+    
+    def permute_no_trigger_init(self, rng, subset):
+        probs = self.marginal.copy()
+        probs[self.idxs] = 0
+        probs = probs / probs.sum()
+        probs[subset] = probs[self.permute(subset)]
+        return probs
+        
+
+    # It generates an OOD sequence without trigger tokens
     def no_trigger_gen_seq(self, rng: np.random.Generator, subset):
         seq = self.bos_init()
         cond = self.make_subset_cond(subset)
@@ -175,7 +233,7 @@ class Dataset:
         return seq
 
 
-    # This is the default dgp in Biette's. All subclasses only need to rewrite gen_seq
+    # It is the default dgp in Biette's. All subclasses only need to rewrite gen_seq
     def gen_seq(self, rng: np.random.Generator):
         cond = np.array([[1 for _ in range(self.num_tokens)] for _ in range(self.num_tokens)])
         contexts = self.make_icl_context(self.idxs, rng, cond)
@@ -328,6 +386,7 @@ class icl(Dataset):
         self.expect = "(induction head (dormant when there's no repeated token)): detect whether the currect token occurs before"
         # we do not want delimiter to to interfere the results
         assert self.delimiter_p == 0
+
     def gen_seq(self, rng: np.random.Generator):
         seq = self.bos_init()
         contexts = {}
@@ -363,10 +422,11 @@ class markov(Dataset):
         raise NotImplementedError  
     
 
-class dormant_copy(Dataset):
+class dormant_markov(Dataset):
     def __init__(self, args: DataArgs, meta,
                  train_test: Optional[str] = None,):
         super().__init__(args, meta, train_test,)
+        assert self.delimiter_p == 0
         self.description = "ONLY use copy. In each seq, implement markov transition. At trigger token i, predict (i+1) with (i-1)."
         self.expect = "(copy head, dormant when not on trigger tokens)."
     def gen_seq(self, rng: np.random.Generator):
@@ -384,15 +444,17 @@ class dormant_copy(Dataset):
     def special_test(self, seqs):
         raise NotImplementedError
 
-class dormant_copy_2(Dataset):
+class dormant_copy(Dataset):
     def __init__(self, args: DataArgs, meta,
                  train_test: Optional[str] = None,):
         super().__init__(args, meta, train_test,)
+        assert self.delimiter_p == 0
         self.description = "ONLY use copy. In each seq, implement markov transition. At trigger token i, predict (i+1) with copying (i-1)."
         self.expect = "(copy head, dormant when not on trigger tokens)."
+        self.marginal2 = self.no_trigger_init(None)
     def gen_seq(self, rng: np.random.Generator):
         seq = self.bos_init()
-        seq.append(self.no_trigger_init(rng))
+        seq.append(self.custom_iid(None, rng, self.marginal2))
         while len(seq) <= self.seq_length:
             x, xp = seq[-1], seq[-2]
             x_markov = self.markov_transition(x, rng)
@@ -400,11 +462,95 @@ class dormant_copy_2(Dataset):
                 seq.append(xp)
             else:
                 seq.append(x_markov)
-
         return seq
     
-    def special_test(self, seqs):
-        raise NotImplementedError
+    def get_triggers_pos(self, seqs):
+        triggers_pos = np.isin(seqs, self.idxs)
+        return triggers_pos
+    
+# p=0 <-> dormant_markov, p=1 <-> dormant_copy
+class dormant_copy_interpolate(Dataset):
+    def __init__(self, args: DataArgs, meta,
+                 train_test: Optional[str] = None,):
+        super().__init__(args, meta, train_test,)
+        assert self.delimiter_p == 0
+        self.description = "ONLY use copy. In each seq, implement markov transition. At trigger token i, with probability p, predict (i+1) with copying (i-1), and with probability 1-p predict (i+1) with markov(i-1)."
+        self.expect = "(copy head, dormant when not on trigger tokens)."
+        self.mix_p = args.mix_p
+        self.marginal2 = self.no_trigger_init(None)
+    def gen_seq(self, rng: np.random.Generator):
+        seq = self.bos_init()
+        seq.append(self.custom_iid(None, rng, self.marginal2))
+        while len(seq) <= self.seq_length:
+            x, xp = seq[-1], seq[-2]
+            x_markov, x_markovp = self.markov_transition(x, rng), self.markov_transition(xp, rng)
+            if x in self.idxs:
+                if rng.random() < self.mix_p:
+                    seq.append(xp)
+                else:
+                    seq.append(x_markovp)
+            else:
+                seq.append(x_markov)
+        return seq
+
+# p=0 <-> markov, p=1 <-> dormant_markov
+class dormant_markov_interpolate(Dataset):
+    def __init__(self, args: DataArgs, meta,
+                 train_test: Optional[str] = None,):
+        super().__init__(args, meta, train_test,)
+        assert self.delimiter_p == 0
+        self.description = "ONLY use copy. In each seq, implement markov transition. At trigger token i, with probability p, predict (i+1) with markov(i-1), and with probability 1-p predict (i+1) with markov(i)."
+        self.expect = "(copy head, dormant when not on trigger tokens)."
+        self.mix_p = args.mix_p
+        self.marginal2 = self.no_trigger_init(None)
+
+    def gen_seq(self, rng: np.random.Generator):
+        seq = self.bos_init()
+        seq.append(self.custom_iid(None, rng, self.marginal2))
+        while len(seq) <= self.seq_length:
+            x, xp = seq[-1], seq[-2]
+            x_markov, x_markovp = self.markov_transition(x, rng), self.markov_transition(xp, rng)
+            if x in self.idxs:
+                if rng.random() < self.mix_p:
+                    seq.append(x_markovp)
+                else:
+                    seq.append(x_markov)
+            else:
+                seq.append(x_markov)
+        return seq
+
+
+class dormant_double_tasks(Dataset):
+    def __init__(self, args: DataArgs, meta,
+                 train_test: Optional[str] = None,):
+        super().__init__(args, meta, train_test,)
+        assert self.delimiter_p > 0
+        self.description = "It is a mix of two heads, one with the same mechanism with dormant_copy_2, and the other one is the change of context. Sepcifically, after the change of context delimiter, the all tokens except for triggers would get a fixed permutation."
+        self.expect = "(L1: (H1: copy head, dormant when not on trigger tokens), (H2: delimiter detection head, dormant when there's no delimiter)))."
+        markov_tok = [i for i in self.tok_range if i not in self.idxs and i not in self.bos and i != self.delimiter]
+        self.cond2 = self.permute_cond_no_delim(None, markov_tok)
+        self.marginal2 = self.no_trigger_init(None)
+        self.marginal3 = self.permute_no_trigger_init(None, markov_tok)
+    
+    def gen_seq(self, rng: np.random.Generator):
+        seq = self.bos_init()
+        seq.append(self.custom_iid(None, rng, self.marginal2))
+        delim_flag = False
+        while len(seq) <= self.seq_length:
+            x, xp = seq[-1], seq[-2]
+            if x == self.delimiter:
+                seq.append(self.custom_iid(None, rng, self.marginal3))
+                delim_flag = True
+                continue
+            x_markov, x_markov2 = self.markov_transition(x, rng), self.custom_markov(x, rng, self.cond2)
+            if x in self.idxs:
+                seq.append(xp)
+            else:
+                if delim_flag:
+                    seq.append(x_markov2)
+                else:
+                    seq.append(x_markov)
+        return seq
 
 # I feel this dgp is not that necessary since it only adds a new procedure (L2) in dormant_copy.
 class dormant_Biette(Dataset):
@@ -413,9 +559,11 @@ class dormant_Biette(Dataset):
         super().__init__(args, meta, train_test,)
         self.description = "Biette's setting with ICL becomes copying the previous token of the first occurance of the trigger instead of the following token. CAVEAT1: we cannot control the previous tokens of triggers, so we use the previous token of the first trigger, which may be a problem. CAVEAT2: we use rejection sampling to avoid getting triggers on the intial token."
         self.expect = "((L1: copy head, dormant when not on trigger tokens) -> L2: induction head, dormant when there's no repeated triggers)). When activated, the induction head will copy the information stored on the previous repeated trigger. Then use it to predict the next token."
+        self.marginal2 = self.no_trigger_init(None)
+
     def gen_seq(self, rng: np.random.Generator):
         seq = self.bos_init()
-        seq += self.no_trigger_init(rng)
+        seq.append(self.custom_iid(None, rng, self.marginal2))
         contexts = {}
         while len(seq) <= self.seq_length:
             x, xp = seq[-1], seq[-2]
@@ -431,7 +579,11 @@ class dormant_Biette(Dataset):
     def special_test(self, seqs):
         raise NotImplementedError
 
-name_to_data = {'icl': icl, "markov": markov, "dormant_copy": dormant_copy, "dormant_copy_2": dormant_copy_2}
+name_to_data = {'icl': icl, "markov": markov, "dormant_markov": dormant_markov, "dormant_copy": dormant_copy, "dormant_double_tasks": dormant_double_tasks, "dormant_copy_interpolate": dormant_copy_interpolate, "dormant_markov_interpolate": dormant_markov_interpolate, "dormant_Biette": dormant_Biette}
 
 def make_dataset(cfg, meta):
-    return name_to_data[cfg.data_name](cfg.data_args, meta, train_test=None, )
+    # data_name is the orignal name
+    try:
+        return name_to_data[cfg.task_name](cfg.data_args, meta, train_test=None, )
+    except:
+        return name_to_data[cfg.data_name](cfg.data_args, meta, train_test=None, )
