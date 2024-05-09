@@ -26,6 +26,14 @@ from tqdm import tqdm
 
 logging.getLogger().setLevel(logging.INFO)
 
+def set_random_seed(seed):
+    np.random.seed(seed)
+    torch.cuda.manual_seed_all(seed) # RZ: Sets the seed for generating random numbers for all devices (both CPU and CUDA).
+    torch.manual_seed(seed) # RZ: Specifically sets the seed for all CUDA GPUs for generating random numbers. This is necessary for ensuring that all GPUs have the same initial random state.
+    random.seed(seed)
+    torch.backends.cudnn.deterministic = True # RZ: Some operations in CUDA are non-deterministic by default. To ensure determinism, you might need to set additional flags in PyTorch. However, this could potentially impact performance.
+    torch.backends.cudnn.benchmark = False
+
 
 @dataclass
 class OptimArgs:
@@ -40,7 +48,6 @@ class WandbArgs:
     project: str = 'birth'
     entity: str = 'tianyu_guo'
     name: str = 'dormant_test'
-    resume: bool = True
 
 @dataclass
 class TrainerArgs:
@@ -58,6 +65,7 @@ class TrainerArgs:
     root_dir: str = ''
     task_name: str = ''
     seperate_loss: bool = False
+    seed: int = 42
 
 
 if __name__ == '__main__':
@@ -69,6 +77,7 @@ if __name__ == '__main__':
         )
     cfg = OmegaConf.merge(OmegaConf.structured(args), OmegaConf.from_cli())
     cfg.model_args.bos_num = cfg.data_args.bos_num
+    set_random_seed(cfg.seed)
     with open("/data/tianyu_guo/birth/data/bos1_d0/meta.pickle", "rb") as f:
         meta_info = pickle.load(f)
     ds = make_dataset(cfg, meta_info)
@@ -82,13 +91,12 @@ if __name__ == '__main__':
         print(dict_cfg)
         with open(outdir / 'params.yaml', 'w') as f:
             OmegaConf.save(dict_cfg, f,)
+    # wandb.init()
     wandb.init(
-            dir=cfg.out_dir,
+            dir=str(outdir),
             project=cfg.wandb_args.project,
             entity=cfg.wandb_args.entity,
-            config=cfg.__dict__,
             name=cfg.wandb_args.name,
-            resume=cfg.wandb_args.resume,
         )
     model = Transformer(cfg.model_args)
     model.cuda()
@@ -115,7 +123,7 @@ if __name__ == '__main__':
     t = time.time()
     t0 = t
     res = []
-    log_steps = np.arange(0, cfg.fine_grid_log, 5).tolist() + np.arange(cfg.fine_grid_log+1000, 5000, 1000).tolist()
+    log_steps = np.arange(0, cfg.fine_grid_log, 5).tolist() + np.linspace(cfg.fine_grid_log, cfg.max_iters, 5).tolist()
     for i, (x, y) in enumerate(iterate_batches(ds, batch_size=cfg.optim_args.batch_size, num_workers=cfg.num_data_workers)):
         if i in log_steps:
             training_state = {
@@ -127,8 +135,11 @@ if __name__ == '__main__':
         dt_data = time.time() - t
         if cfg.max_iters is not None and i >= cfg.max_iters:
             sys.exit(0)
+        triggers_pos = ds.get_triggers_pos(x)
         x = torch.from_numpy(x).cuda()
         y = torch.from_numpy(y).cuda()
+        triggers_pos = torch.from_numpy(triggers_pos).cuda()
+        exist_icl = torch.sum(triggers_pos) > 0
 
         optimizer.zero_grad()
         pred = model(x)
@@ -140,9 +151,9 @@ if __name__ == '__main__':
         dt = time.time() - t
         t = time.time()
         if cfg.seperate_loss:
-            triggers_pos = ds.get_triggers_pos(x)
-            icl_loss = F.cross_entropy(pred[triggers_pos].flatten(0, 1), y[triggers_pos].flatten(0, 1))
-            markov_loss = F.cross_entropy(pred[~triggers_pos].flatten(0, 1), y[~triggers_pos].flatten(0, 1))
+            # pdb.set_trace()
+            icl_loss = F.cross_entropy(pred[triggers_pos, :], y[triggers_pos]) if exist_icl else 0
+            markov_loss = F.cross_entropy(pred[~triggers_pos, :], y[~triggers_pos])
             wandb.log({
                             f"{cfg.task_name}/overall_loss": loss,
                             f"{cfg.task_name}/markov_loss": markov_loss,

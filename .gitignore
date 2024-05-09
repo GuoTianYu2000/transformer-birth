@@ -2,3 +2,4 @@
 *.pkl
 *.out
 *.DS_Store
+**/wandb

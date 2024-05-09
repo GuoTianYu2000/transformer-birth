@@ -418,8 +418,9 @@ class markov(Dataset):
             x_markov = self.markov_transition(x, rng)
             seq.append(x_markov)
         return seq
-    def special_test(self, seqs):
-        raise NotImplementedError  
+    def get_triggers_pos(self, seqs):
+        triggers_pos = np.full_like(seqs, 0) == 1
+        return triggers_pos
     
 
 class dormant_markov(Dataset):
