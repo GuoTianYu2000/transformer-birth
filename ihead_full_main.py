@@ -12,6 +12,7 @@ import sys
 import yaml
 import os
 import pdb
+import wandb
 
 from omegaconf import OmegaConf
 from pathlib import Path
@@ -34,27 +35,37 @@ class OptimArgs:
     batch_size: int = 64
     use_sgd: bool = False  # otherwise use AdamW
 
+@dataclass
+class WandbArgs:
+    project: str = 'birth'
+    entity: str = 'tianyu_guo'
+    name: str = 'dormant_test'
+    resume: bool = True
 
 @dataclass
 class TrainerArgs:
     optim_args: OptimArgs
     data_args: DataArgs
     model_args: ModelArgs
+    wandb_args: WandbArgs
     max_iters: Optional[int] = None
     eval_delta: int = 5
     log_norms: bool = False
     log_probes: bool = False
     num_data_workers: int = 60
     save_dir: Optional[str] = None
+    fine_grid_log: int = 1001
     root_dir: str = ''
-    data_name: str = ''
+    task_name: str = ''
+    seperate_loss: bool = False
 
 
 if __name__ == '__main__':
     args = TrainerArgs(
            optim_args=OptimArgs(),
            data_args=DataArgs(),
-           model_args=ModelArgs()
+           model_args=ModelArgs(),
+           wandb_args=WandbArgs(),
         )
     cfg = OmegaConf.merge(OmegaConf.structured(args), OmegaConf.from_cli())
     cfg.model_args.bos_num = cfg.data_args.bos_num
@@ -71,8 +82,14 @@ if __name__ == '__main__':
         print(dict_cfg)
         with open(outdir / 'params.yaml', 'w') as f:
             OmegaConf.save(dict_cfg, f,)
-        outfile = open(outdir / 'res.jsonl', 'w')
-
+    wandb.init(
+            dir=cfg.out_dir,
+            project=cfg.wandb_args.project,
+            entity=cfg.wandb_args.entity,
+            config=cfg.__dict__,
+            name=cfg.wandb_args.name,
+            resume=cfg.wandb_args.resume,
+        )
     model = Transformer(cfg.model_args)
     model.cuda()
 
@@ -98,7 +115,15 @@ if __name__ == '__main__':
     t = time.time()
     t0 = t
     res = []
+    log_steps = np.arange(0, cfg.fine_grid_log, 5).tolist() + np.arange(cfg.fine_grid_log+1000, 5000, 1000).tolist()
     for i, (x, y) in enumerate(iterate_batches(ds, batch_size=cfg.optim_args.batch_size, num_workers=cfg.num_data_workers)):
+        if i in log_steps:
+            training_state = {
+                "model_state_dict": model.state_dict(),
+                "optimizer_state_dict": optimizer.state_dict(),
+                "train_step": i,
+            }
+            torch.save(training_state, os.path.join(cfg.save_dir, f"state_{i}.pt"))
         dt_data = time.time() - t
         if cfg.max_iters is not None and i >= cfg.max_iters:
             sys.exit(0)
@@ -114,13 +139,26 @@ if __name__ == '__main__':
         optimizer.step()
         dt = time.time() - t
         t = time.time()
+        if cfg.seperate_loss:
+            triggers_pos = ds.get_triggers_pos(x)
+            icl_loss = F.cross_entropy(pred[triggers_pos].flatten(0, 1), y[triggers_pos].flatten(0, 1))
+            markov_loss = F.cross_entropy(pred[~triggers_pos].flatten(0, 1), y[~triggers_pos].flatten(0, 1))
+            wandb.log({
+                            f"{cfg.task_name}/overall_loss": loss,
+                            f"{cfg.task_name}/markov_loss": markov_loss,
+                            f"{cfg.task_name}/icl_loss": icl_loss,
+                        },
+                        step=i,
+                    )
+        else:
+            wandb.log({f"{cfg.task_name}/overall_loss": loss}, step=i)
 
-        if i % cfg.eval_delta == 0:
-            print(f"round_{i}_loss_{loss:.2}")
-        if (i <= 200 and i % 10 == 0) or i in [500, 700, 1000, 2000, 4999]:
-            training_state = {
-                "model_state_dict": model.state_dict(),
-                "optimizer_state_dict": optimizer.state_dict(),
-                "train_step": i,
-            }
-            torch.save(training_state, os.path.join(cfg.save_dir, f"state_{i}.pt"))
+    # save the last state
+    training_state = {
+        "model_state_dict": model.state_dict(),
+        "optimizer_state_dict": optimizer.state_dict(),
+        "train_step": i+1,
+    }
+    torch.save(training_state, os.path.join(cfg.save_dir, f"state_{i+1}.pt"))
+
+
