@@ -68,5 +68,5 @@ def load_model(run_path_local="/Users/guotianyu/GitHub/birth/gens/special/dorman
         # y = torch.from_numpy(y)
         y = x[:, 1:]
         x = x[:, :-1]
-        return model, x, y
+        return model, x, y, ds
 
