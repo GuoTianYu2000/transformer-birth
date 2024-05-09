@@ -30,7 +30,7 @@ def plot_attns(cfg, ax, seq_idx, head_idx, layer_idx, seq_len, outputs_list, tex
     return ax
 
 def load_model(run_path_local="/Users/guotianyu/GitHub/birth/gens/special/dormant_copy", run_path_server="/data/tianyu_guo/birth/gens/special/dormant_copy_2", n_layers=1, n_heads=1, bos_num=1, train_steps=4999, delim=0, with_data=True, data_path_local="/Users/guotianyu/GitHub/birth/data", data_path_server="/data/tianyu_guo/birth/data"):
-    model_name = f"model_L{n_layers}_H{n_heads}_bos{bos_num}_delim{delim}"
+    model_name = f"model_L{n_layers}_H{n_heads}_bos{bos_num}_delim{delim}" if delim==0 else f"model_L{n_layers}_H{n_heads}_bos{bos_num}_delim" + "005"
     path_local = os.path.join(run_path_local, model_name, "params.yaml")
     path_server = os.path.join(run_path_server, model_name, "params.yaml")
     try:
@@ -48,10 +48,11 @@ def load_model(run_path_local="/Users/guotianyu/GitHub/birth/gens/special/dorman
         state = torch.load(state_path_server, map_location="cpu")
     model.load_state_dict(state["model_state_dict"], strict=False, )
     if not with_data:
-        return model
+        return model, cfg
     else:
-        data_path_local = os.path.join(data_path_local, f"bos{bos_num}_d{delim}", "meta.pickle")
-        data_path_server = os.path.join(data_path_server, f"bos{bos_num}_d{delim}", "meta.pickle")
+        data_name = f"bos{bos_num}_d{delim}" if delim == 0 else f"bos{bos_num}_d" + "005"
+        data_path_local = os.path.join(data_path_local, data_name, "meta.pickle")
+        data_path_server = os.path.join(data_path_server, data_name, "meta.pickle")
         try:
             with open(data_path_local, "rb") as f:
                 meta_info = pickle.load(f)
@@ -68,5 +69,11 @@ def load_model(run_path_local="/Users/guotianyu/GitHub/birth/gens/special/dorman
         # y = torch.from_numpy(y)
         y = x[:, 1:]
         x = x[:, :-1]
-        return model, x, y, ds
+        return model, cfg, x, y, ds
 
+def move_device(outputs_list):
+    for i, outputs in enumerate(outputs_list):
+        for key, value in outputs.items():
+            outputs[key] = value.cpu()
+
+    return outputs_list

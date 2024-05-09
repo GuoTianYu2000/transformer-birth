@@ -493,6 +493,10 @@ class dormant_copy_interpolate(Dataset):
             else:
                 seq.append(x_markov)
         return seq
+    
+    def get_triggers_pos(self, seqs):
+        triggers_pos = np.isin(seqs, self.idxs)
+        return triggers_pos
 
 # p=0 <-> markov, p=1 <-> dormant_markov
 class dormant_markov_interpolate(Dataset):
@@ -519,7 +523,9 @@ class dormant_markov_interpolate(Dataset):
             else:
                 seq.append(x_markov)
         return seq
-
+    def get_triggers_pos(self, seqs):
+        triggers_pos = np.isin(seqs, self.idxs)
+        return triggers_pos
 
 class dormant_double_tasks(Dataset):
     def __init__(self, args: DataArgs, meta,
@@ -528,30 +534,41 @@ class dormant_double_tasks(Dataset):
         assert self.delimiter_p > 0
         self.description = "It is a mix of two heads, one with the same mechanism with dormant_copy_2, and the other one is the change of context. Sepcifically, after the change of context delimiter, the all tokens except for triggers would get a fixed permutation."
         self.expect = "(L1: (H1: copy head, dormant when not on trigger tokens), (H2: delimiter detection head, dormant when there's no delimiter)))."
-        markov_tok = [i for i in self.tok_range if i not in self.idxs and i not in self.bos and i != self.delimiter]
-        self.cond2 = self.permute_cond_no_delim(None, markov_tok)
+        # markov_tok = [i for i in self.tok_range if i not in self.idxs and i not in self.bos and i != self.delimiter]
+        non_special_tok = [i for i in self.tok_range if i not in self.bos and i != self.delimiter]
+        self.non_special_tok = non_special_tok
+        self.cond2 = self.permute_cond_no_delim(None, non_special_tok)
         self.marginal2 = self.no_trigger_init(None)
-        self.marginal3 = self.permute_no_trigger_init(None, markov_tok)
+        self.marginal3 = self.permute_no_trigger_init(None, non_special_tok)
     
     def gen_seq(self, rng: np.random.Generator):
         seq = self.bos_init()
         seq.append(self.custom_iid(None, rng, self.marginal2))
         delim_flag = False
+        idxs = self.idxs
         while len(seq) <= self.seq_length:
             x, xp = seq[-1], seq[-2]
             if x == self.delimiter:
                 seq.append(self.custom_iid(None, rng, self.marginal3))
                 delim_flag = True
+                idxs = [(i - 1) % len(self.non_special_tok) for i in idxs]
                 continue
             x_markov, x_markov2 = self.markov_transition(x, rng), self.custom_markov(x, rng, self.cond2)
-            if x in self.idxs:
-                seq.append(xp)
-            else:
-                if delim_flag:
+            if delim_flag:
+                if x in idxs:
+                    seq.append(xp)
+                else:
                     seq.append(x_markov2)
+            else:
+                if x in idxs:
+                    seq.append(xp)
                 else:
                     seq.append(x_markov)
         return seq
+    
+    def get_triggers_pos(self, seqs):
+        triggers_pos = np.isin(seqs, self.idxs)
+        return triggers_pos
 
 # I feel this dgp is not that necessary since it only adds a new procedure (L2) in dormant_copy.
 class dormant_Biette(Dataset):
@@ -580,7 +597,7 @@ class dormant_Biette(Dataset):
     def special_test(self, seqs):
         raise NotImplementedError
 
-name_to_data = {'icl': icl, "markov": markov, "dormant_markov": dormant_markov, "dormant_copy": dormant_copy, "dormant_double_tasks": dormant_double_tasks, "dormant_copy_interpolate": dormant_copy_interpolate, "dormant_markov_interpolate": dormant_markov_interpolate, "dormant_Biette": dormant_Biette}
+name_to_data = {'icl': icl, "markov": markov, "dormant_markov": dormant_markov, "dormant_copy": dormant_copy, "dormant_copy_2": dormant_copy, "dormant_double_tasks": dormant_double_tasks, "dormant_copy_interpolate": dormant_copy_interpolate, "dormant_markov_interpolate": dormant_markov_interpolate, "dormant_Biette": dormant_Biette}
 
 def make_dataset(cfg, meta):
     # data_name is the orignal name

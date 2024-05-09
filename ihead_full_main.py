@@ -61,7 +61,7 @@ class TrainerArgs:
     log_probes: bool = False
     num_data_workers: int = 60
     save_dir: Optional[str] = None
-    fine_grid_log: int = 1001
+    fine_grid_log: int = 0
     root_dir: str = ''
     task_name: str = ''
     seperate_loss: bool = False
@@ -78,8 +78,13 @@ if __name__ == '__main__':
     cfg = OmegaConf.merge(OmegaConf.structured(args), OmegaConf.from_cli())
     cfg.model_args.bos_num = cfg.data_args.bos_num
     set_random_seed(cfg.seed)
-    with open("/data/tianyu_guo/birth/data/bos1_d0/meta.pickle", "rb") as f:
+    if cfg.data_args.delimiter_p > 0:
+        meta_path = "/data/tianyu_guo/birth/data/bos1_d005/meta.pickle"
+    else:
+        meta_path = "/data/tianyu_guo/birth/data/bos1_d0/meta.pickle"
+    with open(meta_path, "rb") as f:
         meta_info = pickle.load(f)
+    # pdb.set_trace()
     ds = make_dataset(cfg, meta_info)
     cfg.model_args.vocab_size = ds.num_tokens
 
@@ -123,7 +128,12 @@ if __name__ == '__main__':
     t = time.time()
     t0 = t
     res = []
-    log_steps = np.arange(0, cfg.fine_grid_log, 5).tolist() + np.linspace(cfg.fine_grid_log, cfg.max_iters, 5).tolist()
+    if cfg.fine_grid_log == 0:
+        log_steps = np.linspace(cfg.fine_grid_log, cfg.max_iters, 5).tolist()
+    elif cfg.fine_grid_log < cfg.max_iters:
+        log_steps = np.arange(0, cfg.fine_grid_log, 5).tolist() + np.linspace(cfg.fine_grid_log, cfg.max_iters, 5).tolist()
+    else:
+        log_steps = np.arange(0, cfg.max_iters, 20).tolist()
     for i, (x, y) in enumerate(iterate_batches(ds, batch_size=cfg.optim_args.batch_size, num_workers=cfg.num_data_workers)):
         if i in log_steps:
             training_state = {
