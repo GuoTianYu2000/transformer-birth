@@ -20,9 +20,10 @@ from torch import nn, Tensor
 from torch.nn import functional as F
 from typing import List, Optional, Tuple
 
-from data import DataArgs, Dataset, iterate_batches, make_dataset
+from data import *
 from ihead_full_model import ModelArgs, Transformer
 from tqdm import tqdm
+from probe_utils import get_model_name
 
 logging.getLogger().setLevel(logging.INFO)
 
@@ -78,16 +79,15 @@ if __name__ == '__main__':
     cfg = OmegaConf.merge(OmegaConf.structured(args), OmegaConf.from_cli())
     cfg.model_args.bos_num = cfg.data_args.bos_num
     set_random_seed(cfg.seed)
-    if cfg.data_args.delimiter_p > 0:
-        meta_path = "/data/tianyu_guo/birth/data/bos1_d005/meta.pickle"
-    else:
-        meta_path = "/data/tianyu_guo/birth/data/bos1_d0/meta.pickle"
+    d_name = float_to_str(cfg.data_args.delimiter_p)
+    meta_path = f"/data/tianyu_guo/birth/data/bos1_d" + d_name +"/meta.pickle"
     with open(meta_path, "rb") as f:
         meta_info = pickle.load(f)
+    model_name = get_model_name(n_layers=cfg.model_args.n_layers, n_heads=cfg.model_args.n_heads, bos_num=cfg.data_args.bos_num, train_steps=cfg.max_iters, delim=cfg.data_args.delimiter_p, mix_p=cfg.data_args.mix_p)
+    cfg.save_dir = os.path.join(cfg.save_dir, model_name)
     # pdb.set_trace()
     ds = make_dataset(cfg, meta_info)
-    cfg.model_args.vocab_size = ds.num_tokens
-
+    cfg.model_args.vocab_size = ds.num_tokens        
     if cfg.save_dir is not None:
         outdir = Path(cfg.root_dir) / Path(cfg.save_dir)
         outdir.mkdir(parents=True, exist_ok=True)

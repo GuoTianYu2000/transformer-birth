@@ -13,6 +13,20 @@ from typing import List, Optional, Tuple
 
 logging.getLogger().setLevel(logging.INFO)
 
+def float_to_str(num, digits=3):
+    if num>0:
+        if digits==3:
+            # Multiply by 100 and convert to integer to shift the decimal two places
+            int_part = int(num * 100)
+            # Format the integer to be zero-padded to 3 digits
+            return f"{int_part:03d}"
+        elif digits==4:
+            # Multiply by 100 and convert to integer to shift the decimal two places
+            int_part = int(num * 1000)
+            # Format the integer to be zero-padded to 3 digits
+            return f"{int_part:04d}"
+    else:
+        return "0"
 
 @dataclass
 class DataArgs:
@@ -23,7 +37,7 @@ class DataArgs:
     no_repeat: bool = False
     bos_num: int = 1
     delimiter_p: float = 0
-    mix_p: float = 0
+    mix_p: Optional[float] = None
 
 
 class Dataset:
@@ -540,6 +554,7 @@ class dormant_double_tasks(Dataset):
         self.cond2 = self.permute_cond_no_delim(None, non_special_tok)
         self.marginal2 = self.no_trigger_init(None)
         self.marginal3 = self.permute_no_trigger_init(None, non_special_tok)
+        self.idxs2 = [(i - 1) % len(self.non_special_tok) for i in self.idxs]
     
     def gen_seq(self, rng: np.random.Generator):
         seq = self.bos_init()
@@ -551,7 +566,7 @@ class dormant_double_tasks(Dataset):
             if x == self.delimiter:
                 seq.append(self.custom_iid(None, rng, self.marginal3))
                 delim_flag = True
-                idxs = [(i - 1) % len(self.non_special_tok) for i in idxs]
+                idxs = self.idxs2
                 continue
             x_markov, x_markov2 = self.markov_transition(x, rng), self.custom_markov(x, rng, self.cond2)
             if delim_flag:
@@ -564,6 +579,54 @@ class dormant_double_tasks(Dataset):
                     seq.append(xp)
                 else:
                     seq.append(x_markov)
+        return seq
+    
+    def get_triggers_pos(self, seqs):
+        triggers_pos = np.isin(seqs, self.idxs)
+        return triggers_pos
+
+class dormant_double_tasks_harder(Dataset):
+    def __init__(self, args: DataArgs, meta,
+                 train_test: Optional[str] = None,):
+        super().__init__(args, meta, train_test,)
+        assert self.delimiter_p > 0
+        self.description = "On top of double tasks, after the copy from trigger, we generate the next token from no trigger init"
+        self.expect = "(L1: (H1: copy head, dormant when on tokens that never generate triggers), (H2: delimiter detection head, dormant when there's no delimiter)))."
+        # TODO: I need to make modification
+        # markov_tok = [i for i in self.tok_range if i not in self.idxs and i not in self.bos and i != self.delimiter]
+        non_special_tok = [i for i in self.tok_range if i not in self.bos and i != self.delimiter]
+        self.non_special_tok = non_special_tok
+        self.cond2 = self.permute_cond_no_delim(None, non_special_tok)
+        self.marginal2 = self.no_trigger_init(None)
+        self.marginal3 = self.permute_no_trigger_init(None, non_special_tok)
+        self.idxs2 = [(i - 1) % len(self.non_special_tok) for i in self.idxs]
+    
+    def gen_seq(self, rng: np.random.Generator):
+        seq = self.bos_init()
+        seq.append(self.custom_iid(None, rng, self.marginal2))
+        delim_flag = False
+        idxs = self.idxs
+        while len(seq) <= self.seq_length:
+            x, xp = seq[-1], seq[-2]
+            if x == self.delimiter:
+                seq.append(self.custom_iid(None, rng, self.marginal3))
+                delim_flag = True
+                idxs = self.idxs2
+                continue
+            x_markov, x_markov2 = self.markov_transition(x, rng), self.custom_markov(x, rng, self.cond2)
+            if delim_flag:
+                if x in idxs:
+                    seq.append(xp)
+                    seq.append(self.custom_iid(None, rng, self.marginal2))
+                else:
+                    seq.append(x_markov2)
+            else:
+                if x in idxs:
+                    seq.append(xp)
+                    seq.append(self.custom_iid(None, rng, self.marginal3))
+                else:
+                    seq.append(x_markov)
+        seq = seq[:self.seq_length+1]
         return seq
     
     def get_triggers_pos(self, seqs):
