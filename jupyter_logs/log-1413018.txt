@@ -84,3 +84,27 @@ You can list all discoverable environments with `conda info --envs`.
 [I 2024-05-13 21:06:52.972 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.32ms
 [W 2024-05-13 21:06:52.977 ServerApp] 404 GET /nbextensions/jupyter-js-widgets/extension.js (@172.16.0.238) 0.89ms referer=None
 [W 2024-05-13 21:06:52.978 ServerApp] 404 GET /nbextensions/viewer/extension.js (@172.16.0.238) 1.12ms referer=None
+[I 2024-05-13 21:10:24.739 ServerApp] Starting buffering for 5f1c556e-1d32-400b-8601-c1bf65617c1a:2d252dd1-014d-4bbb-afa7-59983fa2635b
+[W 2024-05-13 22:07:27.439 ServerApp] 404 GET /hub/api (@172.16.0.238) 27.60ms referer=None
+[I 2024-05-13 22:07:27.773 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.39ms
+[W 2024-05-13 22:07:29.234 ServerApp] 404 GET /hub/api (@172.16.0.238) 3.20ms referer=None
+[I 2024-05-13 22:07:29.258 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.31ms
+[I 2024-05-13 22:07:29.308 ServerApp] Connecting to kernel 332c535c-f5ac-449d-a222-72cac9fcbd19.
+[W 2024-05-13 22:07:32.438 ServerApp] 404 GET /nbextensions/jupyter-js-widgets/extension.js (@172.16.0.238) 2.84ms referer=None
+[W 2024-05-13 22:07:32.439 ServerApp] 404 GET /nbextensions/viewer/extension.js (@172.16.0.238) 0.72ms referer=None
+[W 2024-05-13 22:07:32.440 ServerApp] 404 GET /hub/api (@172.16.0.238) 0.65ms referer=None
+[W 2024-05-13 22:07:32.441 ServerApp] 404 GET /hub/api (@172.16.0.238) 1.20ms referer=None
+[I 2024-05-13 22:07:32.443 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.25ms
+[W 2024-05-13 22:07:32.452 ServerApp] 404 GET /nbextensions/jupyter-js-widgets/extension.js (@172.16.0.238) 1.21ms referer=None
+[W 2024-05-13 22:07:32.458 ServerApp] 404 GET /nbextensions/viewer/extension.js (@172.16.0.238) 6.54ms referer=None
+[I 2024-05-13 22:12:13.020 ServerApp] Starting buffering for c893973f-61dc-4385-b060-662c95052c4a:9a2e16e5-8fac-4345-83af-ae45b1c16de4
+[W 2024-05-13 22:21:59.816 ServerApp] 404 GET /hub/api (@172.16.0.238) 3.54ms referer=None
+[I 2024-05-13 22:21:59.820 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.30ms
+[I 2024-05-13 22:21:59.848 ServerApp] Connecting to kernel c893973f-61dc-4385-b060-662c95052c4a.
+[W 2024-05-13 22:22:02.262 ServerApp] 404 GET /nbextensions/viewer/extension.js (@172.16.0.238) 3.21ms referer=None
+[W 2024-05-13 22:22:02.263 ServerApp] 404 GET /nbextensions/jupyter-js-widgets/extension.js (@172.16.0.238) 3.42ms referer=None
+[W 2024-05-13 22:22:02.263 ServerApp] 404 GET /hub/api (@172.16.0.238) 3.72ms referer=None
+[W 2024-05-13 22:22:02.264 ServerApp] 404 GET /hub/api (@172.16.0.238) 3.99ms referer=None
+[I 2024-05-13 22:22:02.269 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.24ms
+[W 2024-05-13 22:22:02.275 ServerApp] 404 GET /nbextensions/jupyter-js-widgets/extension.js (@172.16.0.238) 0.95ms referer=None
+[W 2024-05-13 22:22:02.276 ServerApp] 404 GET /nbextensions/viewer/extension.js (@172.16.0.238) 1.20ms referer=None

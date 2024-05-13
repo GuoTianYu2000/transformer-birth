@@ -37,6 +37,7 @@ class DataArgs:
     no_repeat: bool = False
     bos_num: int = 1
     delimiter_p: float = 0
+    delim_num: int = 1
     mix_p: Optional[float] = None
 
 
@@ -62,6 +63,11 @@ class Dataset:
         self.cond = np.array(self.meta['cond'])
         self.bos = self.meta['bos']
         self.delimiter = self.meta['delimiter']
+        if "norm_tok_range" in self.meta.keys():
+            self.norm_tok_range = self.meta['norm_tok_range']
+        else:
+            min_bos = np.min(self.bos)
+            self.norm_tok_range = range(min_bos)
 
         # OOD
         if self.train_test is not None:
@@ -176,8 +182,10 @@ class Dataset:
         return probs
     
     def rand_init(self, rng):
-        alpha = [1] * len()
-        probs = rng.dirichlet()
+        probs_all = np.zeros_like(self.tok_range)
+        probs = rng.dirichlet(np.ones_like(self.norm_tok_range))
+        probs_all[:len(probs)] = probs
+        return probs_all
 
     # it causes problem since some tokens only predict the trigger tokens
     def make_no_trigger_cond(self, zero_out_idxs):
@@ -323,6 +331,7 @@ class MetaProcess:
         self.no_repeat = args.no_repeat
         self.delimiter_p = args.delimiter_p
         self.args = args
+        self.delim_num = args.delim_num
 
         # init distributions
         self.meta = pickle.load(open('data/meta.pkl', 'rb'))
@@ -372,6 +381,17 @@ class MetaProcess:
         norm_tok_range = range(mini_bos)
         return {"marginal": self.marginal, "cond": self.cond, "itos": self.itos, "stoi": self.stoi, "vocab_size": self.num_tokens, "bos_num": self.bos_num, "delimiter_p": self.delimiter_p, "bos": seq, "delimiter": self.stoi['<d>'], "norm_tok_range": norm_tok_range}
     
+    def two_delim_process(self,):
+        seq = []
+        bos_token = [f'<s_{i}>' for i in range(self.bos_num)]
+        delim_token = []
+        for idx in range(self.num_tokens):
+            if self.itos[idx] in bos_token:
+                seq.append(idx)
+        mini_bos = np.min(seq)
+        norm_tok_range = range(mini_bos)
+        return {"marginal": self.marginal, "cond": self.cond, "itos": self.itos, "stoi": self.stoi, "vocab_size": self.num_tokens, "bos_num": self.bos_num, "delimiter_p": self.delimiter_p, "bos": seq, "delimiter": self.stoi['<d>'], "norm_tok_range": norm_tok_range}
+    
     def tuning(self, idxs, cutoff):
         for i in self.tok_range:
             if np.sum([self.cond[i, t] for t in self.idxs]) < cutoff:
@@ -407,6 +427,24 @@ class MetaProcess:
         ref_post = meta['unigrams']
         ref_post[tok], ref_pre[tok] = 0, 0
         meta = self.update_meta(meta, idx, tok, ref_pre=ref_pre, ref_post=ref_post)
+        return meta
+    
+    def add_double_delimiter(self, meta):
+        delim = []
+        for i in range(self.delim_num):
+            idx = meta['vocab_size']
+            tok = f'<d_{i}>'
+            ref_pre = [(tok, 0) for tok in meta['unigrams'].keys()]
+            ref_pre = dict(ref_pre)
+            for (w1, w2), cnt in self.meta['bigrams'].items():
+                if w1 in [f'<s_{i}>' for i in range(self.bos_num)]:
+                    continue
+                ref_pre[w1] += cnt
+            for (w1, cnt) in ref_pre.items():
+                ref_pre[w1] = cnt * self.delimiter_p / (1 - self.delim_num * self.delimiter_p)
+            ref_post = meta['unigrams']
+            ref_post[tok], ref_pre[tok] = 0, 0
+            meta = self.update_meta(meta, idx, tok, ref_pre=ref_pre, ref_post=ref_post)
         return meta
     
     def update_meta(self, meta, idx, tok, ref_pre=None, ref_post=None):
@@ -638,6 +676,42 @@ class dormant_double_tasks_retry(Dataset):
             x_markov = self.markov_transition(x, rng)
             if x in self.idxs:
                 seq.append(xp)
+            else:
+                seq.append(x_markov)
+        return seq
+    
+    def get_triggers_pos(self, seqs):
+        triggers_pos = np.isin(seqs, self.idxs)
+        return triggers_pos
+
+class dormant_two_kinds_copies(Dataset):
+    def __init__(self, args: DataArgs, meta,
+                 train_test: Optional[str] = None,):
+        super().__init__(args, meta, train_test,)
+        assert self.delimiter_p == 0
+        self.description = "We want to use two kinds of copies"
+        self.expect = "(L1: (H1: copy head1), (H2: copy head2)))."
+        # TODO: I need to make modification
+        # markov_tok = [i for i in self.tok_range if i not in self.idxs and i not in self.bos and i != self.delimiter]
+        self.mid_k = round(self.k / 2)
+        self.idxs1 = self.idxs[:self.mid_k]
+        self.idxs2 = self.idxs[self.mid_k:]
+        self.marginal2 = self.no_trigger_init(None)
+        markov_tok = [i for i in self.norm_tok_range if i not in self.idxs]
+        markov_tok1 = self.permute(markov_tok)
+        self.tok_permute = [(markov_tok[i], markov_tok1[i]) for i in range(len(markov_tok))]
+        self.tok_permute = dict(self.tok_permute)
+    
+    def gen_seq(self, rng: np.random.Generator):
+        seq = self.bos_init()
+        seq.append(self.custom_iid(None, rng, self.marginal2))
+        while len(seq) <= self.seq_length:
+            x, xp = seq[-1], seq[-2]
+            x_markov = self.markov_transition(x, rng)
+            if x in self.idxs1:
+                seq.append(xp)
+            elif x in self.idxs2:
+                seq.append(self.tok_permute[xp])
             else:
                 seq.append(x_markov)
         return seq
