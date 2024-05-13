@@ -50,6 +50,7 @@ class Dataset:
         self.train_test = train_test
         self.no_repeat = args.no_repeat
         self.delimiter_p = args.delimiter_p
+        self.delim_num = args.delim_num
 
         # init distributions
         self.meta = meta
@@ -68,6 +69,8 @@ class Dataset:
         else:
             min_bos = np.min(self.bos)
             self.norm_tok_range = range(min_bos)
+        if self.delim_num > 1:
+            self.delimiter = self.meta['delimiter']
 
         # OOD
         if self.train_test is not None:
@@ -78,7 +81,10 @@ class Dataset:
         # special tokens
         self.idxs = None
         if args.fixed_special_toks:
-            if self.k>=0:
+            if self.delim_num == 2:
+                self.k = 2
+                self.idxs = self.delimiter
+            elif self.k>=0:
                 # use unigram marginals
                 self.idxs = list(np.array(self.marginal).argsort()[self.num_tokens-args.special_toks_offset-self.k:self.num_tokens-args.special_toks_offset])      
             else:
@@ -336,7 +342,10 @@ class MetaProcess:
         # init distributions
         self.meta = pickle.load(open('data/meta.pkl', 'rb'))
         self.meta = self.add_bos(self.meta)
-        self.meta = self.add_delimiter(self.meta)
+        if self.delim_num == 1:
+            self.meta = self.add_delimiter(self.meta)
+        else:
+            self.meta, self.delim = self.add_double_delimiter(self.meta)
         self.itos = self.meta['itos']
         self.stoi = self.meta['stoi']
         self.num_tokens = self.meta['vocab_size']
@@ -390,7 +399,7 @@ class MetaProcess:
                 seq.append(idx)
         mini_bos = np.min(seq)
         norm_tok_range = range(mini_bos)
-        return {"marginal": self.marginal, "cond": self.cond, "itos": self.itos, "stoi": self.stoi, "vocab_size": self.num_tokens, "bos_num": self.bos_num, "delimiter_p": self.delimiter_p, "bos": seq, "delimiter": self.stoi['<d>'], "norm_tok_range": norm_tok_range}
+        return {"marginal": self.marginal, "cond": self.cond, "itos": self.itos, "stoi": self.stoi, "vocab_size": self.num_tokens, "bos_num": self.bos_num, "delimiter_p": self.delimiter_p, "bos": seq, "delimiter": self.delim, "delim_num": self.delim_num, "norm_tok_range": norm_tok_range}
     
     def tuning(self, idxs, cutoff):
         for i in self.tok_range:
@@ -431,21 +440,25 @@ class MetaProcess:
     
     def add_double_delimiter(self, meta):
         delim = []
+        ref_post = meta['unigrams']
+        ref_pre = [(tok, 0) for tok in meta['unigrams'].keys()]
+        ref_pre = dict(ref_pre)
+        for (w1, w2), cnt in self.meta['bigrams'].items():
+            if w1 in [f'<s_{i}>' for i in range(self.bos_num)] or w1 in [f'<d_{i}>' for i in range(self.delim_num)]:
+                continue
+            ref_pre[w1] += cnt
+        
         for i in range(self.delim_num):
             idx = meta['vocab_size']
             tok = f'<d_{i}>'
-            ref_pre = [(tok, 0) for tok in meta['unigrams'].keys()]
-            ref_pre = dict(ref_pre)
-            for (w1, w2), cnt in self.meta['bigrams'].items():
-                if w1 in [f'<s_{i}>' for i in range(self.bos_num)]:
-                    continue
-                ref_pre[w1] += cnt
+            ref_pre_tmp = {}
             for (w1, cnt) in ref_pre.items():
-                ref_pre[w1] = cnt * self.delimiter_p / (1 - self.delim_num * self.delimiter_p)
-            ref_post = meta['unigrams']
+                ref_pre_tmp[w1] = cnt * self.delimiter_p / (1 - self.delim_num * self.delimiter_p)
+            ref_pre_tmp[tok] = 0
             ref_post[tok], ref_pre[tok] = 0, 0
-            meta = self.update_meta(meta, idx, tok, ref_pre=ref_pre, ref_post=ref_post)
-        return meta
+            meta = self.update_meta(meta, idx, tok, ref_pre=ref_pre_tmp, ref_post=ref_post)
+            delim.append(idx)
+        return meta, delim
     
     def update_meta(self, meta, idx, tok, ref_pre=None, ref_post=None):
         assert meta['vocab_size'] == idx
@@ -688,7 +701,6 @@ class dormant_two_kinds_copies(Dataset):
     def __init__(self, args: DataArgs, meta,
                  train_test: Optional[str] = None,):
         super().__init__(args, meta, train_test,)
-        assert self.delimiter_p == 0
         self.description = "We want to use two kinds of copies"
         self.expect = "(L1: (H1: copy head1), (H2: copy head2)))."
         # TODO: I need to make modification
