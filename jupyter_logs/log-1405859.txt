@@ -173,3 +173,43 @@ You can list all discoverable environments with `conda info --envs`.
 [W 2024-05-11 08:59:18.540 ServerApp] 404 GET /hub/api (@172.16.0.238) 3.35ms referer=None
 [I 2024-05-11 08:59:18.543 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.31ms
 [I 2024-05-11 08:59:18.573 ServerApp] Connecting to kernel 3ed67fd6-f9ac-47c4-ba14-43883a748333.
+[W 2024-05-11 11:16:41.775 ServerApp] 404 GET /hub/api (@172.16.0.238) 3.25ms referer=None
+[I 2024-05-11 11:16:42.319 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.36ms
+[W 2024-05-11 11:17:23.709 ServerApp] 404 GET /hub/api (@172.16.0.238) 3.32ms referer=None
+[I 2024-05-11 11:17:23.711 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.32ms
+[I 2024-05-11 11:17:23.743 ServerApp] Connecting to kernel 3ed67fd6-f9ac-47c4-ba14-43883a748333.
+[W 2024-05-11 12:04:40.293 ServerApp] 404 GET /hub/api (@172.16.0.238) 3.17ms referer=None
+[I 2024-05-11 12:04:40.386 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.32ms
+[W 2024-05-11 12:05:27.734 ServerApp] 404 GET /hub/api (@172.16.0.238) 3.09ms referer=None
+[I 2024-05-11 12:05:27.737 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.32ms
+[I 2024-05-11 12:05:27.771 ServerApp] Connecting to kernel 3ed67fd6-f9ac-47c4-ba14-43883a748333.
+[W 2024-05-11 13:50:32.755 ServerApp] 404 GET /hub/api (@172.16.0.238) 2.84ms referer=None
+[I 2024-05-11 13:50:32.890 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.30ms
+[W 2024-05-11 13:52:05.119 ServerApp] 404 GET /hub/api (@172.16.0.238) 3.16ms referer=None
+[I 2024-05-11 13:52:05.122 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.46ms
+[I 2024-05-11 13:52:05.155 ServerApp] Connecting to kernel 3ed67fd6-f9ac-47c4-ba14-43883a748333.
+[I 2024-05-11 13:56:59.015 ServerApp] Starting buffering for 3ed67fd6-f9ac-47c4-ba14-43883a748333:4da2828f-c51f-4b7a-88bf-5beea7d6e4de
+[W 2024-05-11 14:43:57.094 ServerApp] 404 GET /hub/api (@172.16.0.238) 3.09ms referer=None
+[I 2024-05-11 14:43:57.097 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.26ms
+[I 2024-05-11 14:43:57.126 ServerApp] Connecting to kernel 3ed67fd6-f9ac-47c4-ba14-43883a748333.
+[W 2024-05-11 15:15:47.167 ServerApp] 404 GET /hub/api (@172.16.0.238) 4.71ms referer=None
+[I 2024-05-11 15:15:47.170 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.25ms
+[I 2024-05-11 15:15:47.197 ServerApp] Connecting to kernel 3ed67fd6-f9ac-47c4-ba14-43883a748333.
+[W 2024-05-11 15:15:48.779 ServerApp] 404 GET /nbextensions/jupyter-js-widgets/extension.js (@172.16.0.238) 3.32ms referer=None
+[W 2024-05-11 15:15:48.779 ServerApp] 404 GET /nbextensions/viewer/extension.js (@172.16.0.238) 3.74ms referer=None
+[W 2024-05-11 15:15:48.780 ServerApp] 404 GET /hub/api (@172.16.0.238) 4.01ms referer=None
+[W 2024-05-11 15:15:48.780 ServerApp] 404 GET /hub/api (@172.16.0.238) 4.29ms referer=None
+[I 2024-05-11 15:15:48.782 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.24ms
+[W 2024-05-11 15:15:48.785 ServerApp] 404 GET /nbextensions/jupyter-js-widgets/extension.js (@172.16.0.238) 0.67ms referer=None
+[W 2024-05-11 15:15:48.785 ServerApp] 404 GET /nbextensions/viewer/extension.js (@172.16.0.238) 0.93ms referer=None
+[W 2024-05-11 15:25:09.035 ServerApp] 404 GET /hub/api (@172.16.0.238) 2.96ms referer=None
+[I 2024-05-11 15:25:09.037 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.27ms
+[I 2024-05-11 15:25:09.065 ServerApp] Connecting to kernel 3ed67fd6-f9ac-47c4-ba14-43883a748333.
+[W 2024-05-11 15:25:14.065 ServerApp] 404 GET /nbextensions/jupyter-js-widgets/extension.js (@172.16.0.238) 2.50ms referer=None
+[W 2024-05-11 15:25:14.066 ServerApp] 404 GET /nbextensions/viewer/extension.js (@172.16.0.238) 0.52ms referer=None
+[W 2024-05-11 15:25:14.067 ServerApp] 404 GET /hub/api (@172.16.0.238) 0.64ms referer=None
+[W 2024-05-11 15:25:14.067 ServerApp] 404 GET /hub/api (@172.16.0.238) 0.95ms referer=None
+[I 2024-05-11 15:25:14.070 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.44ms
+[W 2024-05-11 15:25:14.073 ServerApp] 404 GET /nbextensions/jupyter-js-widgets/extension.js (@172.16.0.238) 0.74ms referer=None
+[W 2024-05-11 15:25:14.073 ServerApp] 404 GET /nbextensions/viewer/extension.js (@172.16.0.238) 0.97ms referer=None
+slurmstepd: error: *** JOB 1405859 ON compute-permanent-node-618 CANCELLED AT 2024-05-11T18:32:53 DUE TO TIME LIMIT ***

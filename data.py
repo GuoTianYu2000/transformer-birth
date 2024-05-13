@@ -72,12 +72,20 @@ class Dataset:
         # special tokens
         self.idxs = None
         if args.fixed_special_toks:
-            # use unigram marginals
-            self.idxs = list(np.array(self.marginal).argsort()[self.num_tokens-args.special_toks_offset-self.k:self.num_tokens-args.special_toks_offset])        
+            if self.k>=0:
+                # use unigram marginals
+                self.idxs = list(np.array(self.marginal).argsort()[self.num_tokens-args.special_toks_offset-self.k:self.num_tokens-args.special_toks_offset])      
+            else:
+                self.idxs = [self.delimiter]
 
     def decode(self, idxs: List[int]) -> str:
         text = [self.itos[idx] for idx in idxs]
         return text
+    
+    def update_cond(self, probs, idxs, p):
+        probs_onehot = np.array([1 if i in idxs else 0 for i in self.tok_range])
+        probs = (1 - p) * probs + p * probs_onehot
+        return probs
 
     def uniform_transition(self, rng, subset):
         return rng.choice(subset)
@@ -166,6 +174,10 @@ class Dataset:
         probs[self.idxs] = 0
         probs = probs / probs.sum()
         return probs
+    
+    def rand_init(self, rng):
+        alpha = [1] * len()
+        probs = rng.dirichlet()
 
     # it causes problem since some tokens only predict the trigger tokens
     def make_no_trigger_cond(self, zero_out_idxs):
@@ -343,17 +355,33 @@ class MetaProcess:
             self.cond[i] /= self.cond[i].sum()
             self.cond[i] = self.cond[i].tolist()
 
+    def update_cond(self, probs, idxs, p):
+        p_t = 1 / len(idxs)
+        probs_onehot = np.array([p_t if i in idxs else 0 for i in self.tok_range])
+        probs = (1 - p) * probs + p * probs_onehot
+        return probs
+    
     def process(self,):
         seq = []
         bos_token = [f'<s_{i}>' for i in range(self.bos_num)]
+        delim_token = []
         for idx in range(self.num_tokens):
             if self.itos[idx] in bos_token:
                 seq.append(idx)
+        mini_bos = np.min(seq)
+        norm_tok_range = range(mini_bos)
+        return {"marginal": self.marginal, "cond": self.cond, "itos": self.itos, "stoi": self.stoi, "vocab_size": self.num_tokens, "bos_num": self.bos_num, "delimiter_p": self.delimiter_p, "bos": seq, "delimiter": self.stoi['<d>'], "norm_tok_range": norm_tok_range}
+    
+    def tuning(self, idxs, cutoff):
+        for i in self.tok_range:
+            if np.sum([self.cond[i, t] for t in self.idxs]) < cutoff:
+                self.cond[i, :] = self.update_cond(self.cond[i, :], idxs[:1], cutoff)
+        return [(t, np.sum([self.cond[t, t0] for t0 in idxs])) for t in self.tok_range]
         
-        return {"marginal": self.marginal, "cond": self.cond, "itos": self.itos, "stoi": self.stoi, "vocab_size": self.num_tokens, "bos_num": self.bos_num, "delimiter_p": self.delimiter_p, "bos": seq, "delimiter": self.stoi['<d>']}
     
     # here to make sure that <s> generates a new token following unigrams, and nothing generates <s>, nor <s> gets included in unigrams
     def add_bos(self, meta):
+        bos = []
         for i in range(self.bos_num):
             idx = meta['vocab_size']
             tok = f'<s_{i}>'
@@ -585,12 +613,13 @@ class dormant_double_tasks(Dataset):
         triggers_pos = np.isin(seqs, self.idxs)
         return triggers_pos
 
-class dormant_double_tasks_harder(Dataset):
+
+class dormant_double_tasks_retry(Dataset):
     def __init__(self, args: DataArgs, meta,
                  train_test: Optional[str] = None,):
         super().__init__(args, meta, train_test,)
         assert self.delimiter_p > 0
-        self.description = "On top of double tasks, after the copy from trigger, we generate the next token from no trigger init"
+        self.description = "We want to make to modifications: firstly, use delimiter as trigger tokens instead of picking one chr in the vocab; second, use two delimiters, each one has different tasks"
         self.expect = "(L1: (H1: copy head, dormant when on tokens that never generate triggers), (H2: delimiter detection head, dormant when there's no delimiter)))."
         # TODO: I need to make modification
         # markov_tok = [i for i in self.tok_range if i not in self.idxs and i not in self.bos and i != self.delimiter]
@@ -604,34 +633,19 @@ class dormant_double_tasks_harder(Dataset):
     def gen_seq(self, rng: np.random.Generator):
         seq = self.bos_init()
         seq.append(self.custom_iid(None, rng, self.marginal2))
-        delim_flag = False
-        idxs = self.idxs
         while len(seq) <= self.seq_length:
             x, xp = seq[-1], seq[-2]
-            if x == self.delimiter:
-                seq.append(self.custom_iid(None, rng, self.marginal3))
-                delim_flag = True
-                idxs = self.idxs2
-                continue
-            x_markov, x_markov2 = self.markov_transition(x, rng), self.custom_markov(x, rng, self.cond2)
-            if delim_flag:
-                if x in idxs:
-                    seq.append(xp)
-                    seq.append(self.custom_iid(None, rng, self.marginal2))
-                else:
-                    seq.append(x_markov2)
+            x_markov = self.markov_transition(x, rng)
+            if x in self.idxs:
+                seq.append(xp)
             else:
-                if x in idxs:
-                    seq.append(xp)
-                    seq.append(self.custom_iid(None, rng, self.marginal3))
-                else:
-                    seq.append(x_markov)
-        seq = seq[:self.seq_length+1]
+                seq.append(x_markov)
         return seq
     
     def get_triggers_pos(self, seqs):
         triggers_pos = np.isin(seqs, self.idxs)
         return triggers_pos
+
 
 # I feel this dgp is not that necessary since it only adds a new procedure (L2) in dormant_copy.
 class dormant_Biette(Dataset):
@@ -660,11 +674,13 @@ class dormant_Biette(Dataset):
     def special_test(self, seqs):
         raise NotImplementedError
 
-name_to_data = {'icl': icl, "markov": markov, "dormant_markov": dormant_markov, "dormant_copy": dormant_copy, "dormant_copy_2": dormant_copy, "dormant_double_tasks": dormant_double_tasks, "dormant_copy_interpolate": dormant_copy_interpolate, "dormant_markov_interpolate": dormant_markov_interpolate, "dormant_Biette": dormant_Biette}
+name_to_data = {'icl': icl, "markov": markov, "dormant_markov": dormant_markov, "dormant_copy": dormant_copy, "dormant_copy_2": dormant_copy, "dormant_double_tasks": dormant_double_tasks, "dormant_copy_interpolate": dormant_copy_interpolate, "dormant_markov_interpolate": dormant_markov_interpolate, "dormant_double_tasks_retry": dormant_double_tasks_retry, "dormant_Biette": dormant_Biette}
 
 def make_dataset(cfg, meta):
     # data_name is the orignal name
-    try:
-        return name_to_data[cfg.task_name](cfg.data_args, meta, train_test=None, )
-    except:
-        return name_to_data[cfg.data_name](cfg.data_args, meta, train_test=None, )
+    return name_to_data[cfg.task_name](cfg.data_args, meta, train_test=None, )
+
+
+def make_dataset_old(cfg, meta):
+    # data_name is the orignal name
+    return name_to_data[cfg.data_name](cfg.data_args, meta, train_test=None, )

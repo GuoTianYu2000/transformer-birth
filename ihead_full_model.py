@@ -34,27 +34,28 @@ class forward_hook():
     def intervention(self, func, *args):
         return args[0]
 
-class no_rope_hook(forward_hook):
-    def __init__(self, target_layers,) -> None:
-        super().__init__(target_layers, target_name = "qk_rope", )
-    def intervention(self, func, *args):
-        return args[0], args[1]
-
-class check_rope_hook(forward_hook):
-    def __init__(self, target_layers, ) -> None:
-        super().__init__(target_layers, target_name = "qk_rope", )
-    def intervention(self, func, *args):
-        print(args[2], args[3])
-        return args[0], args[1]
-    
-class zero_out_hook(forward_hook):
-    def __init__(self, target_layers, target_head=16, ) -> None:
+class test_value(forward_hook):
+    def __init__(self, target_layers) -> None:
         super().__init__(target_layers, target_name = "attn_weights", )
-        self.target_head = target_head
     def intervention(self, func, *args):
-        attn_weights = func(*args)
-        attn_weights[:, self.target_head, :, :] = torch.zeros_like(attn_weights[:, self.target_head, :, :])
-        return attn_weights
+        attns = func(*args)
+        B, H, N, N = attns.shape
+        assert B <= N
+        for i in range(B):
+            attns[i, 0, -1, :] = 0
+            attns[i, 0, -1, i] = 1
+        return attns
+
+class test_sink(forward_hook):
+    def __init__(self, target_layers) -> None:
+        super().__init__(target_layers, target_name = "attn_weights", )
+    def intervention(self, func, *args):
+        attns = func(*args)
+        B, H, N, N = attns.shape
+        for i in range(B):
+            attns[i, 0, -1, :] = 0
+            attns[i, 0, -1, 0] = 1
+        return attns
 
 
 @dataclass
