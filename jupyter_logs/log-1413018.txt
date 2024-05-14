@@ -108,3 +108,17 @@ You can list all discoverable environments with `conda info --envs`.
 [I 2024-05-13 22:22:02.269 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.24ms
 [W 2024-05-13 22:22:02.275 ServerApp] 404 GET /nbextensions/jupyter-js-widgets/extension.js (@172.16.0.238) 0.95ms referer=None
 [W 2024-05-13 22:22:02.276 ServerApp] 404 GET /nbextensions/viewer/extension.js (@172.16.0.238) 1.20ms referer=None
+[I 2024-05-14 03:47:43.759 ServerApp] Starting buffering for 332c535c-f5ac-449d-a222-72cac9fcbd19:42602829-163f-4426-8a73-ff8dacf8c584
+[I 2024-05-14 03:47:43.763 ServerApp] Starting buffering for c893973f-61dc-4385-b060-662c95052c4a:7702d303-9a77-4f4d-95d0-493ca8acad56
+[W 2024-05-14 05:49:43.116 ServerApp] 404 GET /hub/api (@172.16.0.238) 3.25ms referer=None
+[I 2024-05-14 05:49:43.215 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.48ms
+[W 2024-05-14 05:49:44.281 ServerApp] 404 GET /hub/api (@172.16.0.238) 2.81ms referer=None
+[I 2024-05-14 05:49:44.293 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.30ms
+[I 2024-05-14 05:49:44.326 ServerApp] Connecting to kernel 332c535c-f5ac-449d-a222-72cac9fcbd19.
+[W 2024-05-14 05:49:46.895 ServerApp] 404 GET /nbextensions/jupyter-js-widgets/extension.js (@172.16.0.238) 3.19ms referer=None
+[W 2024-05-14 05:49:46.896 ServerApp] 404 GET /nbextensions/viewer/extension.js (@172.16.0.238) 3.79ms referer=None
+[W 2024-05-14 05:49:46.896 ServerApp] 404 GET /hub/api (@172.16.0.238) 4.33ms referer=None
+[W 2024-05-14 05:49:46.897 ServerApp] 404 GET /hub/api (@172.16.0.238) 4.82ms referer=None
+[I 2024-05-14 05:49:46.900 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.40ms
+[W 2024-05-14 05:49:46.905 ServerApp] 404 GET /nbextensions/viewer/extension.js (@172.16.0.238) 1.28ms referer=None
+[W 2024-05-14 05:49:46.906 ServerApp] 404 GET /nbextensions/jupyter-js-widgets/extension.js (@172.16.0.238) 1.58ms referer=None

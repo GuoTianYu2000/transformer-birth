@@ -12,13 +12,13 @@ data_args:
   no_repeat: false
   bos_num: 1
   delimiter_p: 0.1
-  delim_num: 1
+  delim_num: 2
   mix_p: null
 model_args:
-  vocab_size: 67
+  vocab_size: 68
   n_layers: 1
   dim: 256
-  n_heads: 1
+  n_heads: 2
   max_length: 256
   pre_norm: true
   no_ffn: false
@@ -37,15 +37,15 @@ model_args:
 wandb_args:
   project: birth
   entity: tianyu_guo
-  name: dormant_double_retry_test_seed27
+  name: dormant_two_kinds_copies
 max_iters: 10000
 eval_delta: 5
 log_norms: false
 log_probes: true
 num_data_workers: 60
-save_dir: /data/tianyu_guo/birth/gens/pre_final/dormant_double_retry_test_seed27/model_L1_H1_bos1_delim010
+save_dir: /data/tianyu_guo/birth/gens/pre_final/dormant_two_kinds_copies/model_L1_H2_bos1_delim010
 fine_grid_log: 0
 root_dir: ''
-task_name: dormant_double_tasks_retry
+task_name: dormant_two_kinds_copies
 seperate_loss: true
-seed: 27
+seed: 42

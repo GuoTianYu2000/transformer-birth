@@ -12,6 +12,7 @@ data_args:
   no_repeat: false
   bos_num: 1
   delimiter_p: 0.2
+  delim_num: 1
   mix_p: null
 model_args:
   vocab_size: 67
@@ -47,4 +48,4 @@ fine_grid_log: 0
 root_dir: ''
 task_name: dormant_double_tasks_retry
 seperate_loss: true
-seed: 42
+seed: 27

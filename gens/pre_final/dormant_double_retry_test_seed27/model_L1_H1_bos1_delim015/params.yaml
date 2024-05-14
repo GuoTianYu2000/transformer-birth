@@ -11,7 +11,7 @@ data_args:
   special_toks_offset: 0
   no_repeat: false
   bos_num: 1
-  delimiter_p: 0.1
+  delimiter_p: 0.15
   delim_num: 1
   mix_p: null
 model_args:
@@ -43,7 +43,7 @@ eval_delta: 5
 log_norms: false
 log_probes: true
 num_data_workers: 60
-save_dir: /data/tianyu_guo/birth/gens/pre_final/dormant_double_retry_test_seed27/model_L1_H1_bos1_delim010
+save_dir: /data/tianyu_guo/birth/gens/pre_final/dormant_double_retry_test_seed27/model_L1_H1_bos1_delim015
 fine_grid_log: 0
 root_dir: ''
 task_name: dormant_double_tasks_retry

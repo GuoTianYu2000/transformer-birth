@@ -705,6 +705,7 @@ class dormant_two_kinds_copies(Dataset):
         self.expect = "(L1: (H1: copy head1), (H2: copy head2)))."
         # TODO: I need to make modification
         # markov_tok = [i for i in self.tok_range if i not in self.idxs and i not in self.bos and i != self.delimiter]
+        assert self.delim_num == 2
         self.mid_k = round(self.k / 2)
         self.idxs1 = self.idxs[:self.mid_k]
         self.idxs2 = self.idxs[self.mid_k:]
@@ -760,7 +761,7 @@ class dormant_Biette(Dataset):
     def special_test(self, seqs):
         raise NotImplementedError
 
-name_to_data = {'icl': icl, "markov": markov, "dormant_markov": dormant_markov, "dormant_copy": dormant_copy, "dormant_copy_2": dormant_copy, "dormant_double_tasks": dormant_double_tasks, "dormant_copy_interpolate": dormant_copy_interpolate, "dormant_markov_interpolate": dormant_markov_interpolate, "dormant_double_tasks_retry": dormant_double_tasks_retry, "dormant_Biette": dormant_Biette}
+name_to_data = {'icl': icl, "markov": markov, "dormant_markov": dormant_markov, "dormant_copy": dormant_copy, "dormant_copy_2": dormant_copy, "dormant_double_tasks": dormant_double_tasks, "dormant_copy_interpolate": dormant_copy_interpolate, "dormant_markov_interpolate": dormant_markov_interpolate, "dormant_double_tasks_retry": dormant_double_tasks_retry, "dormant_two_kinds_copies": dormant_two_kinds_copies, "dormant_Biette": dormant_Biette}
 
 def make_dataset(cfg, meta):
     # data_name is the orignal name
