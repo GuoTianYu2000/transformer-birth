@@ -65,8 +65,11 @@ def load_model(run_path_local="/Users/guotianyu/GitHub/birth/gens/special/dorman
     else:
         d_name = float_to_str(delim)
         data_name = f"bos{bos_num}_d" + d_name
-        if cfg.data_args.delim_num > 1:
-            data_name = data_name + "_delim2"
+        try:
+            if cfg.data_args.delim_num > 1:
+                data_name = data_name + "_delim2"
+        except:
+            data_name = data_name
         data_path_local = os.path.join(data_path_local, data_name, "meta.pickle")
         data_path_server = os.path.join(data_path_server, data_name, "meta.pickle")
         try:

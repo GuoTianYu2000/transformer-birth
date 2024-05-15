@@ -50,7 +50,10 @@ class Dataset:
         self.train_test = train_test
         self.no_repeat = args.no_repeat
         self.delimiter_p = args.delimiter_p
-        self.delim_num = args.delim_num
+        try:
+            self.delim_num = args.delim_num
+        except:
+            self.delim_num = 1
 
         # init distributions
         self.meta = meta
