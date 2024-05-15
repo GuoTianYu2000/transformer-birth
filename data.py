@@ -191,9 +191,8 @@ class Dataset:
         return probs
     
     def rand_init(self, rng):
-        probs_all = np.zeros_like(self.tok_range)
-        probs = rng.dirichlet(np.ones_like(self.norm_tok_range))
-        probs_all[:len(probs)] = probs
+        probs = rng.dirichlet(np.ones_like(self.norm_tok_range)).tolist()
+        probs_all = probs + [0] * (len(self.tok_range) - len(self.norm_tok_range))
         return probs_all
 
     # it causes problem since some tokens only predict the trigger tokens
@@ -668,12 +667,13 @@ class dormant_double_tasks(Dataset):
         return triggers_pos
 
 
+# This dgp may be incompatible with older dgps
 class dormant_double_tasks_retry(Dataset):
     def __init__(self, args: DataArgs, meta,
                  train_test: Optional[str] = None,):
         super().__init__(args, meta, train_test,)
-        assert self.delimiter_p > 0
-        self.description = "We want to make to modifications: firstly, use delimiter as trigger tokens instead of picking one chr in the vocab; second, use two delimiters, each one has different tasks"
+        assert self.delimiter_p == 0
+        self.description = "test everything that makes double tasks work"
         self.expect = "(L1: (H1: copy head, dormant when on tokens that never generate triggers), (H2: delimiter detection head, dormant when there's no delimiter)))."
         # TODO: I need to make modification
         # markov_tok = [i for i in self.tok_range if i not in self.idxs and i not in self.bos and i != self.delimiter]
@@ -686,14 +686,32 @@ class dormant_double_tasks_retry(Dataset):
     
     def gen_seq(self, rng: np.random.Generator):
         seq = self.bos_init()
-        seq.append(self.custom_iid(None, rng, self.marginal2))
+        marginal = self.rand_init(rng)
+        seq.append(self.custom_iid(None, rng, marginal))
+        delim_pos = self.get_delimiter_pos(rng)
+        delim_flag = False
+        idxs = self.idxs
         while len(seq) <= self.seq_length:
             x, xp = seq[-1], seq[-2]
-            x_markov = self.markov_transition(x, rng)
-            if x in self.idxs:
-                seq.append(xp)
+            if x == self.delimiter:
+                marginal2 = self.rand_init(rng)
+                seq.append(self.custom_iid(None, rng, marginal2))
+                delim_flag = True
+                idxs = self.idxs2
+                continue
+            x_markov, x_markov2, x_delim = self.markov_transition(x, rng), self.custom_markov(x, rng, self.cond2), self.delimiter_transition(x, rng, len(seq), delim_pos)
+            if x_delim is not None:
+                seq.append(x_delim)
+            elif delim_flag:
+                if x in idxs:
+                    seq.append(xp)
+                else:
+                    seq.append(x_markov2)
             else:
-                seq.append(x_markov)
+                if x in idxs:
+                    seq.append(xp)
+                else:
+                    seq.append(x_markov)
         return seq
     
     def get_triggers_pos(self, seqs):
