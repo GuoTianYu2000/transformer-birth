@@ -127,6 +127,8 @@ class Dataset:
         elif x_next in copy_toks:
             contexts[x] = x_next
             return contexts
+        else:
+            return contexts
 
     # prepare the context for icl
     def make_icl_context(self, triggers, rng, cond):
@@ -200,10 +202,14 @@ class Dataset:
         probs = probs / probs.sum()
         return probs
     
-    def rand_init(self, rng):
+    def rand_init_no_trigger(self, rng):
         probs = rng.dirichlet(np.ones_like(self.norm_tok_range)).tolist()
         probs_all = probs + [0] * (len(self.tok_range) - len(self.norm_tok_range))
+        probs_all = np.array(probs_all)
+        probs_all[self.idxs] = 0
+        probs_all = probs_all / probs_all.sum()
         return probs_all
+    
 
     # it causes problem since some tokens only predict the trigger tokens
     def make_no_trigger_cond(self, zero_out_idxs):
@@ -697,7 +703,7 @@ class dormant_double_tasks_explore(Dataset):
     
     def gen_seq(self, rng: np.random.Generator):
         seq = self.bos_init()
-        marginal = self.rand_init(rng)
+        marginal = self.rand_init_no_trigger(rng)
         seq.append(self.custom_iid(None, rng, marginal))
         delim_pos = self.get_delimiter_pos(rng)
         delim_flag = False
@@ -705,7 +711,7 @@ class dormant_double_tasks_explore(Dataset):
         while len(seq) <= self.seq_length:
             x, xp = seq[-1], seq[-2]
             if x == self.delimiter:
-                marginal2 = self.rand_init(rng)
+                marginal2 = self.rand_init_no_trigger(rng)
                 seq.append(self.custom_iid(None, rng, marginal2))
                 delim_flag = True
                 idxs = self.idxs2
@@ -752,7 +758,7 @@ class dormant_double_tasks_explore1(Dataset):
     
     def gen_seq_markov(self, rng: np.random.Generator):
         seq = self.bos_init()
-        marginal = self.rand_init(rng)
+        marginal = self.rand_init_no_trigger(rng)
         seq.append(self.custom_iid(None, rng, marginal))
         while len(seq) <= self.seq_length:
             x, xp = seq[-1], seq[-2]
@@ -765,7 +771,7 @@ class dormant_double_tasks_explore1(Dataset):
 
     def gen_seq_copy(self, rng: np.random.Generator):
         seq = self.bos_init()
-        marginal = self.rand_init(rng)
+        marginal = self.rand_init_no_trigger(rng)
         seq.append(self.custom_iid(None, rng, marginal))
         while len(seq) <= self.seq_length:
             x, xp = seq[-1], seq[-2]
@@ -789,14 +795,15 @@ class dormant_double_tasks_explore2(Dataset):
         self.expect = "L1H1->L2H1"
         # TODO: I need to make modification
         # markov_tok = [i for i in self.tok_range if i not in self.idxs and i not in self.bos and i != self.delimiter]
-        copy_toks = [i for i in self.tok_range if i not in self.bos and i not in self.idxs and i < 50]
+        copy_toks = [i for i in self.norm_tok_range if i not in self.bos and i not in self.idxs and i < 50]
         self.copy_toks = copy_toks
     
     def gen_seq(self, rng: np.random.Generator):
         seq = self.bos_init()
-        marginal = self.rand_init()
+        marginal = self.rand_init_no_trigger(rng)
         seq.append(self.custom_iid(None, rng, marginal))
-        contexts = self.make_icl_context(self, self.idxs, rng, None)
+        # pdb.set_trace()
+        contexts = self.make_icl_context(self.idxs, rng, None)
         occurance = dict([(idx, False) for idx in self.idxs])
         while len(seq) <= self.seq_length:
             x, xp = seq[-1], seq[-2]
@@ -812,6 +819,7 @@ class dormant_double_tasks_explore2(Dataset):
             else:
                 x_next = x_markov
             contexts = self.refresh_context(x, x_next, contexts, self.copy_toks)
+            print(seq, contexts)
             seq.append(x_next)
         return seq
     
@@ -852,7 +860,7 @@ class dormant_double_tasks_explore3(Dataset):
             use_permute = True
         
         # second token
-        marginal = self.rand_init()
+        marginal = self.rand_init_no_trigger(rng)
         seq.append(self.custom_iid(None, rng, marginal))
 
         # generate
@@ -861,7 +869,7 @@ class dormant_double_tasks_explore3(Dataset):
         while len(seq) <= self.seq_length:
             x, xp = seq[-1], seq[-2]
             x_markov = self.custom_markov(x, rng, used_cond)
-            if x in used_cond:
+            if x in used_idxs:
                 seq.append(xp)
             else:
                 seq.append(x_markov)
@@ -923,14 +931,14 @@ class dormant_Biette(Dataset):
 
     def gen_seq(self, rng: np.random.Generator):
         seq = self.bos_init()
-        marginal = self.rand_init()
+        marginal = self.rand_init_no_trigger(rng)
         seq.append(self.custom_iid(None, rng, marginal))
         contexts = {}
         while len(seq) <= self.seq_length:
             x, xp = seq[-1], seq[-2]
             x_markov, x_icl = self.markov_transition(x, rng), self.icl_transition(x, rng, contexts)
             contexts = self.update_previous_context(x, xp, contexts)
-            if x in self.idxs:
+            if x_icl is not None:
                 seq.append(x_icl)
             else:
                 seq.append(x_markov)
