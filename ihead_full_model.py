@@ -57,6 +57,17 @@ class test_sink(forward_hook):
             attns[i, 0, -1, 0] = 1
         return attns
 
+class clean_attention(forward_hook):
+    def __init__(self, target_layers, dormant_pos) -> None:
+        super().__init__(target_layers, target_name = "attn_weights", )
+        self.dormant_pos = dormant_pos
+    def intervention(self, func, *args):
+        attns = func(*args)
+        B, H, N, N = attns.shape
+        attns[self.dormant_pos[0], 0, self.dormant_pos[1], :] = 0
+        attns[self.dormant_pos[0], 0, self.dormant_pos[1], 0] = 1
+        return attns
+
 
 @dataclass
 class ModelArgs:
