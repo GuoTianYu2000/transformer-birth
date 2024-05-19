@@ -741,7 +741,7 @@ class dormant_double_tasks_explore1(Dataset):
                  train_test: Optional[str] = None,):
         super().__init__(args, meta, train_test,)
         assert self.delimiter_p == 0
-        self.description = "test everything that makes double tasks work"
+        self.description = "test everything that makes double tasks work; Try mixture of dormant markov and dormant copy"
         self.expect = "(L1: (H1: copy head, dormant when on tokens that never generate triggers), (H2: delimiter detection head, dormant when there's no delimiter)))."
         # TODO: I need to make modification
         # markov_tok = [i for i in self.tok_range if i not in self.idxs and i not in self.bos and i != self.delimiter]
@@ -819,7 +819,48 @@ class dormant_double_tasks_explore2(Dataset):
             else:
                 x_next = x_markov
             contexts = self.refresh_context(x, x_next, contexts, self.copy_toks)
-            print(seq, contexts)
+            seq.append(x_next)
+        return seq
+    
+
+    def get_triggers_pos(self, seqs):
+        triggers_pos = np.isin(seqs, self.idxs)
+        return triggers_pos
+
+# dormant Biette plus the other version, add copy subgroup and lower the prob of having copy tokens
+class dormant_double_tasks_explore4(Dataset):
+    def __init__(self, args: DataArgs, meta,
+                 train_test: Optional[str] = None,):
+        super().__init__(args, meta, train_test,)
+        assert self.delimiter_p == 0
+        self.description = "comparing to explore2, now if copy tokens do not occur, we would simply use Markov transition"
+        self.expect = "L1H1->L2H1"
+        # TODO: I need to make modification
+        # markov_tok = [i for i in self.tok_range if i not in self.idxs and i not in self.bos and i != self.delimiter]
+        copy_toks = [i for i in self.norm_tok_range if i not in self.bos and i not in self.idxs and i < 40]
+        self.copy_toks = copy_toks
+    
+    def gen_seq(self, rng: np.random.Generator):
+        seq = self.bos_init()
+        marginal = self.rand_init_no_trigger(rng)
+        seq.append(self.custom_iid(None, rng, marginal))
+        # pdb.set_trace()
+        contexts = self.make_icl_context(self.idxs, rng, None)
+        occurance = dict([(idx, False) for idx in self.idxs])
+        while len(seq) <= self.seq_length:
+            x, xp = seq[-1], seq[-2]
+            x_markov, x_icl = self.markov_transition(x, rng), self.icl_transition(x, rng, contexts)
+            if x in self.idxs:
+                if not occurance[x]:
+                    x_next = x_icl
+                    occurance[x] = True
+                elif contexts[x] in self.copy_toks:
+                    x_next = x_icl
+                else:
+                    x_next = x_markov
+            else:
+                x_next = x_markov
+            contexts = self.refresh_context(x, x_next, contexts, self.copy_toks)
             seq.append(x_next)
         return seq
     
@@ -945,10 +986,11 @@ class dormant_Biette(Dataset):
 
         return seq
     
-    def special_test(self, seqs):
-        raise NotImplementedError
+    def get_triggers_pos(self, seqs):
+        triggers_pos = np.isin(seqs, self.idxs)
+        return triggers_pos
 
-name_to_data = {'icl': icl, "markov": markov, "dormant_markov": dormant_markov, "dormant_copy": dormant_copy, "dormant_copy_2": dormant_copy, "dormant_double_tasks": dormant_double_tasks, "dormant_copy_interpolate": dormant_copy_interpolate, "dormant_markov_interpolate": dormant_markov_interpolate, "dormant_double_tasks_explore": dormant_double_tasks_explore, "dormant_double_tasks_explore1": dormant_double_tasks_explore1, "dormant_double_tasks_explore2": dormant_double_tasks_explore2, "dormant_double_tasks_explore3": dormant_double_tasks_explore3, "dormant_two_kinds_copies": dormant_two_kinds_copies, "dormant_Biette": dormant_Biette}
+name_to_data = {'icl': icl, "markov": markov, "dormant_markov": dormant_markov, "dormant_copy": dormant_copy, "dormant_copy_2": dormant_copy, "dormant_double_tasks": dormant_double_tasks, "dormant_copy_interpolate": dormant_copy_interpolate, "dormant_markov_interpolate": dormant_markov_interpolate, "dormant_double_tasks_explore": dormant_double_tasks_explore, "dormant_double_tasks_explore1": dormant_double_tasks_explore1, "dormant_double_tasks_explore2": dormant_double_tasks_explore2, "dormant_double_tasks_explore3": dormant_double_tasks_explore3, "dormant_double_tasks_explore4": dormant_double_tasks_explore4, "dormant_two_kinds_copies": dormant_two_kinds_copies, "dormant_Biette": dormant_Biette}
 
 def make_dataset(cfg, meta):
     # data_name is the orignal name

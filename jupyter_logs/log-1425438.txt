@@ -1,0 +1,934 @@
+/var/spool/slurmd/job1425438/slurm_script: line 10: /data/[username]/anaconda3/etc/profile.d/conda.sh: No such file or directory
+
+EnvironmentNameNotFound: Could not find conda environment: [environment]
+You can list all discoverable environments with `conda info --envs`.
+
+
+[I 2024-05-16 23:44:46.833 ServerApp] jupyter_lsp | extension was successfully linked.
+[I 2024-05-16 23:44:46.840 ServerApp] jupyter_server_terminals | extension was successfully linked.
+[W 2024-05-16 23:44:46.842 ServerApp] jupyterlab | error linking extension: Trait, kernel_name, not found.
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/extension/manager.py", line 346, in link_extension
+        extension.link_all_points(self.serverapp)
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/extension/manager.py", line 228, in link_all_points
+        self.link_point(point_name, serverapp)
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/extension/manager.py", line 218, in link_point
+        point.link(serverapp)
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/extension/manager.py", line 140, in link
+        linker(serverapp)
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/extension/application.py", line 404, in _link_jupyter_server_extension
+        self.update_config(self.serverapp.config)
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/notebook_shim/shim.py", line 141, in update_config
+        shimmed_config = self.shim_config_from_notebook_to_jupyter_server(
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/notebook_shim/shim.py", line 232, in shim_config_from_notebook_to_jupyter_server
+        raise TraitError("Trait, {}, not found.".format(trait_name))
+    traitlets.traitlets.TraitError: Trait, kernel_name, not found.
+[I 2024-05-16 23:44:46.851 ServerApp] notebook | extension was successfully linked.
+[I 2024-05-16 23:44:47.379 ServerApp] notebook_shim | extension was successfully linked.
+[I 2024-05-16 23:44:47.418 ServerApp] notebook_shim | extension was successfully loaded.
+[I 2024-05-16 23:44:47.420 ServerApp] jupyter_lsp | extension was successfully loaded.
+[I 2024-05-16 23:44:47.421 ServerApp] jupyter_server_terminals | extension was successfully loaded.
+[I 2024-05-16 23:44:47.431 LabApp] JupyterLab extension loaded from /data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyterlab
+[I 2024-05-16 23:44:47.431 LabApp] JupyterLab application directory is /data/tianyu_guo/miniconda3/share/jupyter/lab
+[I 2024-05-16 23:44:47.432 LabApp] Extension Manager is 'pypi'.
+[I 2024-05-16 23:44:47.442 ServerApp] jupyterlab | extension was successfully loaded.
+[I 2024-05-16 23:44:47.450 ServerApp] notebook | extension was successfully loaded.
+[I 2024-05-16 23:44:47.451 ServerApp] Serving notebooks from local directory: /data/tianyu_guo/birth
+[I 2024-05-16 23:44:47.451 ServerApp] Jupyter Server 2.14.0 is running at:
+[I 2024-05-16 23:44:47.451 ServerApp] http://compute-permanent-node-269:8888/tree?token=d8af64dbacc7f61ebe57f3749bf9a2bccca59ecd036c13eb
+[I 2024-05-16 23:44:47.451 ServerApp]     http://127.0.0.1:8888/tree?token=d8af64dbacc7f61ebe57f3749bf9a2bccca59ecd036c13eb
+[I 2024-05-16 23:44:47.451 ServerApp] Use Control-C to stop this server and shut down all kernels (twice to skip confirmation).
+[C 2024-05-16 23:44:47.461 ServerApp] 
+    
+    To access the server, open this file in a browser:
+        file:///data/tianyu_guo/.local/share/jupyter/runtime/jpserver-191180-open.html
+    Or copy and paste one of these URLs:
+        http://compute-permanent-node-269:8888/tree?token=d8af64dbacc7f61ebe57f3749bf9a2bccca59ecd036c13eb
+        http://127.0.0.1:8888/tree?token=d8af64dbacc7f61ebe57f3749bf9a2bccca59ecd036c13eb
+[I 2024-05-16 23:44:48.014 ServerApp] Skipped non-installed server(s): bash-language-server, dockerfile-language-server-nodejs, javascript-typescript-langserver, jedi-language-server, julia-language-server, pyright, python-language-server, python-lsp-server, r-languageserver, sql-language-server, texlab, typescript-language-server, unified-language-server, vscode-css-languageserver-bin, vscode-html-languageserver-bin, vscode-json-languageserver-bin, yaml-language-server
+[W 2024-05-16 23:55:48.434 ServerApp] 404 GET /hub/api (@172.16.0.238) 98.95ms referer=None
+[I 2024-05-16 23:55:48.452 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.55ms
+[W 2024-05-16 23:55:48.460 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-16 23:55:48.478 ServerApp] 403 GET /api/kernelspecs?1715903748453 (@172.16.0.238) 18.43ms referer=None
+[W 2024-05-16 23:55:48.499 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-16 23:55:48.519 ServerApp] 403 GET /api/kernels?1715903748454 (@172.16.0.238) 21.00ms referer=None
+[W 2024-05-16 23:55:48.544 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-16 23:55:48.564 ServerApp] 403 GET /api/sessions?1715903748456 (@172.16.0.238) 65.28ms referer=None
+[W 2024-05-16 23:55:48.581 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-16 23:55:48.601 ServerApp] 403 GET /api/kernels?1715903748455 (@172.16.0.238) 56.69ms referer=None
+[W 2024-05-16 23:55:48.627 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-16 23:55:48.644 ServerApp] 403 GET /api/kernelspecs?1715903748479 (@172.16.0.238) 16.76ms referer=None
+[W 2024-05-17 00:27:57.488 ServerApp] 404 GET /hub/api (@172.16.0.238) 3.17ms referer=None
+[I 2024-05-17 00:27:57.549 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.62ms
+[W 2024-05-17 00:27:57.591 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-17 00:27:57.592 ServerApp] 403 GET /api/kernelspecs?1715905677556 (@172.16.0.238) 2.09ms referer=None
+[W 2024-05-17 00:27:57.593 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-17 00:27:57.594 ServerApp] 403 GET /api/kernels?1715905677558 (@172.16.0.238) 0.92ms referer=None
+[W 2024-05-17 00:27:57.594 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-17 00:27:57.594 ServerApp] 403 GET /api/kernels?1715905677573 (@172.16.0.238) 1.29ms referer=None
+[W 2024-05-17 00:27:57.594 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-17 00:27:57.595 ServerApp] 403 GET /api/sessions?1715905677575 (@172.16.0.238) 1.65ms referer=None
+[W 2024-05-17 00:27:57.612 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-17 00:27:57.613 ServerApp] 403 GET /api/kernelspecs?1715905677600 (@172.16.0.238) 1.23ms referer=None
+[W 2024-05-17 12:05:58.854 ServerApp] 404 GET /hub/api (@172.16.0.238) 3.39ms referer=None
+[I 2024-05-17 12:05:58.858 ServerApp] 302 GET / (@172.16.0.238) 0.50ms
+[I 2024-05-17 12:05:58.862 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.58ms
+[W 2024-05-17 12:05:59.839 ServerApp] 404 GET /hub/api (@172.16.0.238) 1.07ms referer=None
+[I 2024-05-17 12:05:59.842 ServerApp] 302 GET / (@172.16.0.238) 0.38ms
+[I 2024-05-17 12:05:59.845 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.41ms
+[W 2024-05-17 12:06:12.449 ServerApp] 404 GET /hub/api (@172.16.0.238) 3.40ms referer=None
+[I 2024-05-17 12:06:12.451 ServerApp] 302 GET / (@172.16.0.238) 0.21ms
+[I 2024-05-17 12:06:12.453 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.27ms
+[I 2024-05-17 12:06:12.515 ServerApp] Kernel started: c39a7fc0-5365-488d-a04a-4bc901e4f584
+[I 2024-05-17 12:06:13.710 ServerApp] Connecting to kernel c39a7fc0-5365-488d-a04a-4bc901e4f584.
+[W 2024-05-17 12:06:16.993 ServerApp] 404 GET /nbextensions/jupyter-js-widgets/extension.js (@172.16.0.238) 3.81ms referer=None
+[W 2024-05-17 12:06:16.994 ServerApp] 404 GET /hub/api (@172.16.0.238) 4.68ms referer=None
+[W 2024-05-17 12:06:17.015 ServerApp] 404 GET /nbextensions/viewer/extension.js (@172.16.0.238) 24.89ms referer=None
+[W 2024-05-17 12:06:17.015 ServerApp] 404 GET /hub/api (@172.16.0.238) 25.42ms referer=None
+[I 2024-05-17 12:06:17.018 ServerApp] 302 GET / (@172.16.0.238) 1.01ms
+[I 2024-05-17 12:06:17.021 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.30ms
+[W 2024-05-17 12:06:17.030 ServerApp] 404 GET /nbextensions/jupyter-js-widgets/extension.js (@172.16.0.238) 0.86ms referer=None
+[W 2024-05-17 12:06:17.030 ServerApp] 404 GET /nbextensions/viewer/extension.js (@172.16.0.238) 1.37ms referer=None
+[I 2024-05-17 13:39:01.763 ServerApp] Starting buffering for c39a7fc0-5365-488d-a04a-4bc901e4f584:23f499fe-c517-403d-90ad-da21399229f0
+[W 2024-05-17 13:44:06.715 ServerApp] 404 GET /hub/api (@172.16.0.238) 3.38ms referer=None
+[I 2024-05-17 13:44:06.718 ServerApp] 302 GET / (@172.16.0.238) 0.19ms
+[I 2024-05-17 13:44:06.720 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.29ms
+[I 2024-05-17 13:44:06.776 ServerApp] Kernel started: 9f01c7ea-8f68-4e94-ac84-cea99364fde9
+[I 2024-05-17 13:44:07.870 ServerApp] Connecting to kernel 9f01c7ea-8f68-4e94-ac84-cea99364fde9.
+[W 2024-05-17 16:24:33.031 ServerApp] 404 GET /hub/api (@172.16.0.238) 3.46ms referer=None
+[I 2024-05-17 16:24:33.106 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.59ms
+[W 2024-05-17 16:24:33.150 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-17 16:24:33.152 ServerApp] 403 GET /api/kernelspecs?1715963073125 (@172.16.0.238) 1.89ms referer=None
+[W 2024-05-17 16:24:33.152 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-17 16:24:33.153 ServerApp] 403 GET /api/kernels?1715963073128 (@172.16.0.238) 0.64ms referer=None
+[W 2024-05-17 16:24:33.153 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-17 16:24:33.153 ServerApp] 403 GET /api/kernels?1715963073131 (@172.16.0.238) 0.69ms referer=None
+[W 2024-05-17 16:24:33.154 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-17 16:24:33.154 ServerApp] 403 GET /api/sessions?1715963073133 (@172.16.0.238) 1.05ms referer=None
+[W 2024-05-17 16:26:24.267 ServerApp] 404 GET /hub/api (@172.16.0.238) 3.30ms referer=None
+[I 2024-05-17 16:26:24.279 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.72ms
+[W 2024-05-17 16:26:24.294 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-17 16:26:24.295 ServerApp] 403 GET /api/kernelspecs?1715963184286 (@172.16.0.238) 2.37ms referer=None
+[W 2024-05-17 16:26:24.296 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-17 16:26:24.296 ServerApp] 403 GET /api/kernels?1715963184287 (@172.16.0.238) 2.61ms referer=None
+[W 2024-05-17 16:26:24.296 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-17 16:26:24.296 ServerApp] 403 GET /api/kernels?1715963184288 (@172.16.0.238) 3.00ms referer=None
+[W 2024-05-17 16:26:24.297 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-17 16:26:24.297 ServerApp] 403 GET /api/sessions?1715963184290 (@172.16.0.238) 3.39ms referer=None
+[W 2024-05-17 16:26:24.305 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-17 16:26:24.306 ServerApp] 403 GET /api/kernelspecs?1715963184296 (@172.16.0.238) 0.65ms referer=None
+[W 2024-05-17 16:26:59.089 ServerApp] 404 GET /hub/api (@172.16.0.238) 3.44ms referer=None
+[I 2024-05-17 16:26:59.162 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.59ms
+[W 2024-05-17 16:26:59.196 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-17 16:26:59.197 ServerApp] 403 GET /api/kernelspecs?1715963219185 (@172.16.0.238) 1.74ms referer=None
+[W 2024-05-17 16:26:59.197 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-17 16:26:59.198 ServerApp] 403 GET /api/kernels?1715963219186 (@172.16.0.238) 0.60ms referer=None
+[W 2024-05-17 16:26:59.198 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-17 16:26:59.199 ServerApp] 403 GET /api/kernels?1715963219191 (@172.16.0.238) 0.67ms referer=None
+[W 2024-05-17 16:26:59.199 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-17 16:26:59.199 ServerApp] 403 GET /api/sessions?1715963219193 (@172.16.0.238) 1.04ms referer=None
+[W 2024-05-17 16:26:59.204 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-17 16:26:59.205 ServerApp] 403 GET /api/kernelspecs?1715963219199 (@172.16.0.238) 1.16ms referer=None
+[W 2024-05-17 17:22:37.234 ServerApp] 404 GET /hub/api (@172.16.0.238) 3.95ms referer=None
+[I 2024-05-17 17:22:37.286 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.42ms
+[W 2024-05-17 17:22:37.321 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-17 17:22:37.322 ServerApp] 403 GET /api/kernelspecs?1715966557295 (@172.16.0.238) 1.94ms referer=None
+[W 2024-05-17 17:22:37.323 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-17 17:22:37.323 ServerApp] 403 GET /api/kernels?1715966557296 (@172.16.0.238) 0.73ms referer=None
+[W 2024-05-17 17:22:37.323 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-17 17:22:37.324 ServerApp] 403 GET /api/kernels?1715966557308 (@172.16.0.238) 1.10ms referer=None
+[W 2024-05-17 17:22:37.324 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-17 17:22:37.324 ServerApp] 403 GET /api/sessions?1715966557309 (@172.16.0.238) 0.60ms referer=None
+[I 2024-05-17 19:14:29.821 ServerApp] Starting buffering for 9f01c7ea-8f68-4e94-ac84-cea99364fde9:6bf96449-81b3-476e-b569-963f199c1e58
+[W 2024-05-17 22:23:24.715 ServerApp] 404 GET /hub/api (@172.16.0.238) 5.62ms referer=None
+[I 2024-05-17 22:23:24.933 ServerApp] 302 GET / (@172.16.0.238) 0.22ms
+[I 2024-05-17 22:23:25.057 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.62ms
+[W 2024-05-18 00:17:21.523 ServerApp] 404 GET /hub/api (@172.16.0.238) 20.09ms referer=None
+[I 2024-05-18 00:17:21.556 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.65ms
+[W 2024-05-18 00:17:21.565 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-18 00:17:21.570 ServerApp] 403 GET /api/kernels?1715991441559 (@172.16.0.238) 5.87ms referer=None
+[W 2024-05-18 00:17:21.570 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-18 00:17:21.570 ServerApp] 403 GET /api/kernels?1715991441560 (@172.16.0.238) 6.19ms referer=None
+[W 2024-05-18 00:17:21.570 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-18 00:17:21.571 ServerApp] 403 GET /api/sessions?1715991441562 (@172.16.0.238) 6.51ms referer=None
+[W 2024-05-18 00:17:21.571 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-18 00:17:21.571 ServerApp] 403 GET /api/kernelspecs?1715991441558 (@172.16.0.238) 6.88ms referer=None
+[W 2024-05-18 01:56:17.529 ServerApp] 404 GET /hub/api (@172.16.0.238) 2.78ms referer=None
+[I 2024-05-18 01:56:17.815 ServerApp] 302 GET / (@172.16.0.238) 0.28ms
+[I 2024-05-18 01:56:17.969 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.35ms
+[W 2024-05-18 01:56:18.530 ServerApp] 404 GET /hub/api (@172.16.0.238) 2.81ms referer=None
+[I 2024-05-18 01:56:18.557 ServerApp] 302 GET / (@172.16.0.238) 0.44ms
+[I 2024-05-18 01:56:18.561 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.41ms
+[I 2024-05-18 01:56:18.607 ServerApp] Connecting to kernel 9f01c7ea-8f68-4e94-ac84-cea99364fde9.
+[W 2024-05-18 01:56:20.092 ServerApp] 404 GET /nbextensions/jupyter-js-widgets/extension.js (@172.16.0.238) 2.79ms referer=None
+[W 2024-05-18 01:56:20.093 ServerApp] 404 GET /nbextensions/viewer/extension.js (@172.16.0.238) 0.61ms referer=None
+[W 2024-05-18 01:56:20.094 ServerApp] 404 GET /hub/api (@172.16.0.238) 0.56ms referer=None
+[W 2024-05-18 01:56:20.095 ServerApp] 404 GET /hub/api (@172.16.0.238) 0.55ms referer=None
+[I 2024-05-18 01:56:20.098 ServerApp] 302 GET / (@172.16.0.238) 0.18ms
+[I 2024-05-18 01:56:20.102 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.33ms
+[W 2024-05-18 01:56:20.109 ServerApp] 404 GET /nbextensions/jupyter-js-widgets/extension.js (@172.16.0.238) 0.76ms referer=None
+[W 2024-05-18 01:56:20.110 ServerApp] 404 GET /nbextensions/viewer/extension.js (@172.16.0.238) 1.28ms referer=None
+[I 2024-05-18 05:38:31.022 ServerApp] Starting buffering for 9f01c7ea-8f68-4e94-ac84-cea99364fde9:bb83dae3-98e2-4354-9dca-9db268985b71
+[W 2024-05-18 09:35:55.274 ServerApp] 404 GET /hub/api (@172.16.0.238) 3.82ms referer=None
+[I 2024-05-18 09:35:56.005 ServerApp] 302 GET / (@172.16.0.238) 0.44ms
+[I 2024-05-18 09:35:56.112 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.57ms
+[W 2024-05-18 15:18:39.820 ServerApp] 404 GET /hub/api (@172.16.0.238) 28.95ms referer=None
+[I 2024-05-18 15:18:40.466 ServerApp] 302 GET / (@172.16.0.238) 0.38ms
+[I 2024-05-18 15:18:40.530 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.30ms
+[W 2024-05-18 16:41:52.357 ServerApp] 404 GET /hub/api (@172.16.0.238) 3.50ms referer=None
+[I 2024-05-18 16:41:52.367 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.41ms
+[W 2024-05-18 16:41:52.426 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-18 16:41:52.451 ServerApp] 403 GET /api/kernels?1716050512412 (@172.16.0.238) 25.15ms referer=None
+[W 2024-05-18 16:41:52.451 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-18 16:41:52.451 ServerApp] 403 GET /api/kernelspecs?1716050512410 (@172.16.0.238) 25.78ms referer=None
+[W 2024-05-18 16:41:52.452 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-18 16:41:52.452 ServerApp] 403 GET /api/sessions?1716050512420 (@172.16.0.238) 26.15ms referer=None
+[W 2024-05-18 16:41:52.452 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-18 16:41:52.453 ServerApp] 403 GET /api/kernels?1716050512419 (@172.16.0.238) 26.50ms referer=None
+[W 2024-05-18 16:56:46.709 ServerApp] 404 GET /hub/api (@172.16.0.238) 3.35ms referer=None
+[I 2024-05-18 16:56:46.778 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.64ms
+[W 2024-05-18 16:56:46.804 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-18 16:56:46.815 ServerApp] 403 GET /api/kernelspecs?1716051406792 (@172.16.0.238) 12.42ms referer=None
+[W 2024-05-18 16:56:46.815 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-18 16:56:46.816 ServerApp] 403 GET /api/kernels?1716051406793 (@172.16.0.238) 12.90ms referer=None
+[W 2024-05-18 16:56:46.816 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-18 16:56:46.816 ServerApp] 403 GET /api/kernels?1716051406798 (@172.16.0.238) 13.31ms referer=None
+[W 2024-05-18 16:56:46.817 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-18 16:56:46.817 ServerApp] 403 GET /api/sessions?1716051406799 (@172.16.0.238) 13.64ms referer=None
+[W 2024-05-18 16:56:46.832 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-18 16:56:46.833 ServerApp] 403 GET /api/kernelspecs?1716051406816 (@172.16.0.238) 0.69ms referer=None
+[W 2024-05-18 17:55:40.144 ServerApp] 404 GET /hub/api (@172.16.0.238) 3.46ms referer=None
+[I 2024-05-18 17:55:40.454 ServerApp] 302 GET / (@172.16.0.238) 0.22ms
+[W 2024-05-18 17:55:40.519 ServerApp] 404 GET /hub/api (@172.16.0.238) 1.36ms referer=None
+[I 2024-05-18 17:55:40.520 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.29ms
+[I 2024-05-18 17:55:40.793 ServerApp] Connecting to kernel 9f01c7ea-8f68-4e94-ac84-cea99364fde9.
+[W 2024-05-18 17:55:43.686 ServerApp] 404 GET /nbextensions/jupyter-js-widgets/extension.js (@172.16.0.238) 3.21ms referer=None
+[W 2024-05-18 17:55:43.687 ServerApp] 404 GET /nbextensions/viewer/extension.js (@172.16.0.238) 3.80ms referer=None
+[W 2024-05-18 17:55:43.687 ServerApp] 404 GET /hub/api (@172.16.0.238) 4.35ms referer=None
+[W 2024-05-18 17:55:43.688 ServerApp] 404 GET /hub/api (@172.16.0.238) 4.88ms referer=None
+[I 2024-05-18 17:55:43.691 ServerApp] 302 GET / (@172.16.0.238) 0.38ms
+[I 2024-05-18 17:55:43.694 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.40ms
+[W 2024-05-18 17:55:43.703 ServerApp] 404 GET /nbextensions/jupyter-js-widgets/extension.js (@172.16.0.238) 0.80ms referer=None
+[W 2024-05-18 17:55:43.704 ServerApp] 404 GET /nbextensions/viewer/extension.js (@172.16.0.238) 1.41ms referer=None
+[W 2024-05-18 18:04:17.402 ServerApp] 404 GET /hub/api (@172.16.0.238) 4.02ms referer=None
+[I 2024-05-18 18:04:17.406 ServerApp] 302 GET / (@172.16.0.238) 0.55ms
+[I 2024-05-18 18:04:17.409 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.53ms
+[W 2024-05-18 18:04:41.751 ServerApp] 404 GET /hub/api (@172.16.0.238) 18.89ms referer=None
+[I 2024-05-18 18:04:41.753 ServerApp] 302 GET / (@172.16.0.238) 0.34ms
+[I 2024-05-18 18:04:41.756 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.42ms
+[I 2024-05-18 18:04:41.849 ServerApp] Kernel started: 9b207083-2c03-44f9-b3a5-e7ee7af253d8
+[I 2024-05-18 18:04:43.501 ServerApp] Connecting to kernel 9b207083-2c03-44f9-b3a5-e7ee7af253d8.
+[I 2024-05-18 18:09:04.534 ServerApp] Kernel restarted: 9b207083-2c03-44f9-b3a5-e7ee7af253d8
+[I 2024-05-18 18:09:04.537 ServerApp] Starting buffering for 9b207083-2c03-44f9-b3a5-e7ee7af253d8:a5f54476-5f0e-4de8-b107-1a71964a93ce
+[I 2024-05-18 18:09:04.542 ServerApp] Connecting to kernel 9b207083-2c03-44f9-b3a5-e7ee7af253d8.
+[I 2024-05-18 18:09:04.542 ServerApp] Restoring connection for 9b207083-2c03-44f9-b3a5-e7ee7af253d8:a5f54476-5f0e-4de8-b107-1a71964a93ce
+[W 2024-05-18 18:09:09.016 ServerApp] 404 GET /hub/api (@172.16.0.238) 3.54ms referer=None
+[I 2024-05-18 18:09:09.018 ServerApp] 302 GET / (@172.16.0.238) 0.46ms
+[I 2024-05-18 18:09:09.020 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.44ms
+[I 2024-05-18 18:09:09.070 ServerApp] Kernel started: 86f5d6bf-1364-44f8-b195-333fa40b01c6
+[I 2024-05-18 18:09:09.696 ServerApp] Connecting to kernel 86f5d6bf-1364-44f8-b195-333fa40b01c6.
+[W 2024-05-18 18:19:12.136 ServerApp] 404 GET /hub/api (@172.16.0.238) 3.78ms referer=None
+[I 2024-05-18 18:19:12.138 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.38ms
+[W 2024-05-18 18:19:12.177 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-18 18:19:12.179 ServerApp] 403 GET /api/kernelspecs?1716056352141 (@172.16.0.238) 2.13ms referer=None
+[W 2024-05-18 18:19:12.180 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-18 18:19:12.180 ServerApp] 403 GET /api/kernels?1716056352142 (@172.16.0.238) 0.69ms referer=None
+[W 2024-05-18 18:19:12.180 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-18 18:19:12.181 ServerApp] 403 GET /api/kernels?1716056352143 (@172.16.0.238) 0.60ms referer=None
+[W 2024-05-18 18:19:12.181 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-18 18:19:12.181 ServerApp] 403 GET /api/sessions?1716056352144 (@172.16.0.238) 0.57ms referer=None
+[W 2024-05-18 18:19:12.186 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-18 18:19:12.187 ServerApp] 403 GET /api/kernelspecs?1716056352180 (@172.16.0.238) 0.64ms referer=None
+[W 2024-05-18 18:19:15.026 ServerApp] 404 GET /hub/api (@172.16.0.238) 11.49ms referer=None
+[I 2024-05-18 18:19:15.089 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.67ms
+[W 2024-05-18 18:19:15.102 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-18 18:19:15.104 ServerApp] 403 GET /api/kernelspecs?1716056355090 (@172.16.0.238) 2.18ms referer=None
+[W 2024-05-18 18:19:15.104 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-18 18:19:15.105 ServerApp] 403 GET /api/kernels?1716056355091 (@172.16.0.238) 0.77ms referer=None
+[W 2024-05-18 18:19:15.105 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-18 18:19:15.105 ServerApp] 403 GET /api/kernels?1716056355093 (@172.16.0.238) 1.13ms referer=None
+[W 2024-05-18 18:19:15.106 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-18 18:19:15.106 ServerApp] 403 GET /api/sessions?1716056355094 (@172.16.0.238) 0.56ms referer=None
+[W 2024-05-18 18:19:15.108 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-18 18:19:15.109 ServerApp] 403 GET /api/kernelspecs?1716056355104 (@172.16.0.238) 0.55ms referer=None
+[W 2024-05-18 18:19:18.275 ServerApp] 404 GET /hub/api (@172.16.0.238) 3.09ms referer=None
+[I 2024-05-18 18:19:18.341 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.37ms
+[W 2024-05-18 18:19:18.370 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-18 18:19:18.372 ServerApp] 403 GET /api/kernelspecs?1716056358361 (@172.16.0.238) 2.21ms referer=None
+[W 2024-05-18 18:19:18.373 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-18 18:19:18.373 ServerApp] 403 GET /api/kernels?1716056358363 (@172.16.0.238) 0.84ms referer=None
+[W 2024-05-18 18:19:18.373 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-18 18:19:18.373 ServerApp] 403 GET /api/kernels?1716056358366 (@172.16.0.238) 1.20ms referer=None
+[W 2024-05-18 18:19:18.374 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-18 18:19:18.374 ServerApp] 403 GET /api/sessions?1716056358367 (@172.16.0.238) 1.58ms referer=None
+[W 2024-05-18 18:20:11.061 ServerApp] 404 GET /hub/api (@172.16.0.238) 7.62ms referer=None
+[I 2024-05-18 18:20:11.066 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.33ms
+[W 2024-05-18 18:20:11.087 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-18 18:20:11.089 ServerApp] 403 GET /api/kernelspecs?1716056411080 (@172.16.0.238) 2.21ms referer=None
+[W 2024-05-18 18:20:11.089 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-18 18:20:11.090 ServerApp] 403 GET /api/kernels?1716056411081 (@172.16.0.238) 2.59ms referer=None
+[W 2024-05-18 18:20:11.090 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-18 18:20:11.091 ServerApp] 403 GET /api/kernels?1716056411083 (@172.16.0.238) 0.72ms referer=None
+[W 2024-05-18 18:20:11.091 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-18 18:20:11.091 ServerApp] 403 GET /api/sessions?1716056411084 (@172.16.0.238) 1.09ms referer=None
+[W 2024-05-18 18:22:43.903 ServerApp] 404 GET /hub/api (@172.16.0.238) 3.56ms referer=None
+[I 2024-05-18 18:22:44.036 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.62ms
+[W 2024-05-18 18:22:44.069 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-18 18:22:44.070 ServerApp] 403 GET /api/kernelspecs?1716056564059 (@172.16.0.238) 2.16ms referer=None
+[W 2024-05-18 18:22:44.071 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-18 18:22:44.071 ServerApp] 403 GET /api/kernels?1716056564060 (@172.16.0.238) 0.66ms referer=None
+[W 2024-05-18 18:22:44.072 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-18 18:22:44.072 ServerApp] 403 GET /api/kernels?1716056564064 (@172.16.0.238) 0.70ms referer=None
+[W 2024-05-18 18:22:44.072 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-18 18:22:44.073 ServerApp] 403 GET /api/sessions?1716056564065 (@172.16.0.238) 1.09ms referer=None
+[W 2024-05-18 18:22:44.077 ServerApp] wrote error: 'Forbidden'
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 1788, in _execute
+        result = method(*self.path_args, **self.path_kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/tornado/web.py", line 3289, in wrapper
+        url = self.get_login_url()
+              ^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/base/handlers.py", line 783, in get_login_url
+        raise web.HTTPError(403)
+    tornado.web.HTTPError: HTTP 403: Forbidden
+[W 2024-05-18 18:22:44.077 ServerApp] 403 GET /api/kernelspecs?1716056564072 (@172.16.0.238) 0.54ms referer=None
+[I 2024-05-18 20:22:20.216 ServerApp] Starting buffering for 9f01c7ea-8f68-4e94-ac84-cea99364fde9:006497c3-892d-4ce0-a91c-953b46931b12
+[I 2024-05-18 21:47:55.032 ServerApp] Starting buffering for 86f5d6bf-1364-44f8-b195-333fa40b01c6:99df3bc6-347c-4dc7-9a2f-d8ef4384d99d
+[I 2024-05-18 22:28:08.585 ServerApp] Kernel restarted: 9b207083-2c03-44f9-b3a5-e7ee7af253d8
+[I 2024-05-18 22:28:08.588 ServerApp] Starting buffering for 9b207083-2c03-44f9-b3a5-e7ee7af253d8:a5f54476-5f0e-4de8-b107-1a71964a93ce
+[I 2024-05-18 22:28:08.595 ServerApp] Connecting to kernel 9b207083-2c03-44f9-b3a5-e7ee7af253d8.
+[I 2024-05-18 22:28:08.595 ServerApp] Restoring connection for 9b207083-2c03-44f9-b3a5-e7ee7af253d8:a5f54476-5f0e-4de8-b107-1a71964a93ce
+[I 2024-05-18 23:00:51.553 ServerApp] Kernel interrupted: 9b207083-2c03-44f9-b3a5-e7ee7af253d8
+slurmstepd: error: *** JOB 1425438 ON compute-permanent-node-269 CANCELLED AT 2024-05-18T23:44:42 DUE TO TIME LIMIT ***

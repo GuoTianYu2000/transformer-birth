@@ -1,0 +1,112 @@
+/var/spool/slurmd/job1435188/slurm_script: line 10: /data/[username]/anaconda3/etc/profile.d/conda.sh: No such file or directory
+
+EnvironmentNameNotFound: Could not find conda environment: [environment]
+You can list all discoverable environments with `conda info --envs`.
+
+
+[I 2024-05-17 22:34:26.358 ServerApp] jupyter_lsp | extension was successfully linked.
+[I 2024-05-17 22:34:26.364 ServerApp] jupyter_server_terminals | extension was successfully linked.
+[W 2024-05-17 22:34:26.366 ServerApp] jupyterlab | error linking extension: Trait, kernel_name, not found.
+    Traceback (most recent call last):
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/extension/manager.py", line 346, in link_extension
+        extension.link_all_points(self.serverapp)
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/extension/manager.py", line 228, in link_all_points
+        self.link_point(point_name, serverapp)
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/extension/manager.py", line 218, in link_point
+        point.link(serverapp)
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/extension/manager.py", line 140, in link
+        linker(serverapp)
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyter_server/extension/application.py", line 404, in _link_jupyter_server_extension
+        self.update_config(self.serverapp.config)
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/notebook_shim/shim.py", line 141, in update_config
+        shimmed_config = self.shim_config_from_notebook_to_jupyter_server(
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/data/tianyu_guo/miniconda3/lib/python3.12/site-packages/notebook_shim/shim.py", line 232, in shim_config_from_notebook_to_jupyter_server
+        raise TraitError("Trait, {}, not found.".format(trait_name))
+    traitlets.traitlets.TraitError: Trait, kernel_name, not found.
+[I 2024-05-17 22:34:26.374 ServerApp] notebook | extension was successfully linked.
+[I 2024-05-17 22:34:26.940 ServerApp] notebook_shim | extension was successfully linked.
+[I 2024-05-17 22:34:26.985 ServerApp] notebook_shim | extension was successfully loaded.
+[I 2024-05-17 22:34:26.987 ServerApp] jupyter_lsp | extension was successfully loaded.
+[I 2024-05-17 22:34:26.988 ServerApp] jupyter_server_terminals | extension was successfully loaded.
+[I 2024-05-17 22:34:27.002 LabApp] JupyterLab extension loaded from /data/tianyu_guo/miniconda3/lib/python3.12/site-packages/jupyterlab
+[I 2024-05-17 22:34:27.002 LabApp] JupyterLab application directory is /data/tianyu_guo/miniconda3/share/jupyter/lab
+[I 2024-05-17 22:34:27.003 LabApp] Extension Manager is 'pypi'.
+[I 2024-05-17 22:34:27.012 ServerApp] jupyterlab | extension was successfully loaded.
+[I 2024-05-17 22:34:27.020 ServerApp] notebook | extension was successfully loaded.
+[I 2024-05-17 22:34:27.020 ServerApp] Serving notebooks from local directory: /data/tianyu_guo/birth
+[I 2024-05-17 22:34:27.020 ServerApp] Jupyter Server 2.14.0 is running at:
+[I 2024-05-17 22:34:27.020 ServerApp] http://compute-permanent-node-35:8888/tree?token=0eff8cb22b87df3f747e1fa572ff7ed116eaf37498b95321
+[I 2024-05-17 22:34:27.020 ServerApp]     http://127.0.0.1:8888/tree?token=0eff8cb22b87df3f747e1fa572ff7ed116eaf37498b95321
+[I 2024-05-17 22:34:27.020 ServerApp] Use Control-C to stop this server and shut down all kernels (twice to skip confirmation).
+[C 2024-05-17 22:34:27.025 ServerApp] 
+    
+    To access the server, open this file in a browser:
+        file:///data/tianyu_guo/.local/share/jupyter/runtime/jpserver-177966-open.html
+    Or copy and paste one of these URLs:
+        http://compute-permanent-node-35:8888/tree?token=0eff8cb22b87df3f747e1fa572ff7ed116eaf37498b95321
+        http://127.0.0.1:8888/tree?token=0eff8cb22b87df3f747e1fa572ff7ed116eaf37498b95321
+[I 2024-05-17 22:34:27.110 ServerApp] Skipped non-installed server(s): bash-language-server, dockerfile-language-server-nodejs, javascript-typescript-langserver, jedi-language-server, julia-language-server, pyright, python-language-server, python-lsp-server, r-languageserver, sql-language-server, texlab, typescript-language-server, unified-language-server, vscode-css-languageserver-bin, vscode-html-languageserver-bin, vscode-json-languageserver-bin, yaml-language-server
+[W 2024-05-18 23:45:55.184 ServerApp] 404 GET /hub/api (@172.16.0.238) 32.05ms referer=None
+[I 2024-05-18 23:45:55.186 ServerApp] 302 GET / (@172.16.0.238) 0.30ms
+[I 2024-05-18 23:45:55.193 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.39ms
+[W 2024-05-18 23:45:56.798 ServerApp] 404 GET /hub/api (@172.16.0.238) 3.13ms referer=None
+[I 2024-05-18 23:45:56.799 ServerApp] 302 GET / (@172.16.0.238) 0.26ms
+[I 2024-05-18 23:45:56.801 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.29ms
+[W 2024-05-18 23:46:02.698 ServerApp] 404 GET /hub/api (@172.16.0.238) 3.10ms referer=None
+[I 2024-05-18 23:46:02.699 ServerApp] 302 GET / (@172.16.0.238) 0.25ms
+[I 2024-05-18 23:46:02.706 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.34ms
+[I 2024-05-18 23:46:02.795 ServerApp] Kernel started: bcf2ae22-c18c-4772-bb1f-eec95c360e1e
+[I 2024-05-18 23:46:03.980 ServerApp] Connecting to kernel bcf2ae22-c18c-4772-bb1f-eec95c360e1e.
+[W 2024-05-19 02:53:23.859 ServerApp] 404 GET /hub/api (@172.16.0.238) 3.51ms referer=None
+[I 2024-05-19 02:53:24.068 ServerApp] 302 GET / (@172.16.0.238) 0.40ms
+[I 2024-05-19 02:53:24.195 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.56ms
+[I 2024-05-19 07:01:02.853 ServerApp] Kernel restarted: bcf2ae22-c18c-4772-bb1f-eec95c360e1e
+[I 2024-05-19 07:01:03.243 ServerApp] Starting buffering for bcf2ae22-c18c-4772-bb1f-eec95c360e1e:c028a318-2a57-469c-991e-ad6434d42484
+[I 2024-05-19 07:01:04.992 ServerApp] Connecting to kernel bcf2ae22-c18c-4772-bb1f-eec95c360e1e.
+[I 2024-05-19 07:01:04.993 ServerApp] Restoring connection for bcf2ae22-c18c-4772-bb1f-eec95c360e1e:c028a318-2a57-469c-991e-ad6434d42484
+[I 2024-05-19 07:01:05.020 ServerApp] Replaying 3 buffered messages
+[W 2024-05-19 07:28:03.941 ServerApp] 404 GET /hub/api (@172.16.0.238) 3.18ms referer=None
+[I 2024-05-19 07:28:05.622 ServerApp] 302 GET / (@172.16.0.238) 0.44ms
+[I 2024-05-19 07:28:07.357 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.55ms
+[I 2024-05-19 07:28:12.957 ServerApp] Kernel started: 82b44665-a655-4c23-b6d0-6b999e412aea
+[I 2024-05-19 07:28:17.207 ServerApp] Connecting to kernel 82b44665-a655-4c23-b6d0-6b999e412aea.
+[W 2024-05-19 07:28:23.366 ServerApp] 404 GET /nbextensions/jupyter-js-widgets/extension.js (@172.16.0.238) 3.48ms referer=None
+[W 2024-05-19 07:28:23.367 ServerApp] 404 GET /nbextensions/viewer/extension.js (@172.16.0.238) 0.80ms referer=None
+[W 2024-05-19 07:28:23.368 ServerApp] 404 GET /hub/api (@172.16.0.238) 1.10ms referer=None
+[W 2024-05-19 07:28:23.368 ServerApp] 404 GET /hub/api (@172.16.0.238) 1.43ms referer=None
+[I 2024-05-19 07:28:25.087 ServerApp] 302 GET / (@172.16.0.238) 0.27ms
+[I 2024-05-19 07:28:27.007 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.52ms
+[I 2024-05-19 07:28:29.878 ServerApp] Starting buffering for bcf2ae22-c18c-4772-bb1f-eec95c360e1e:c028a318-2a57-469c-991e-ad6434d42484
+[W 2024-05-19 07:28:30.938 ServerApp] 404 GET /nbextensions/jupyter-js-widgets/extension.js (@172.16.0.238) 2.74ms referer=None
+[W 2024-05-19 07:28:30.939 ServerApp] 404 GET /nbextensions/viewer/extension.js (@172.16.0.238) 0.53ms referer=None
+[I 2024-05-19 07:40:00.304 ServerApp] Starting buffering for 82b44665-a655-4c23-b6d0-6b999e412aea:a0b3741d-610d-4b98-9dc6-a2f739e6bf8a
+[W 2024-05-19 07:40:43.304 ServerApp] 404 GET /hub/api (@172.16.0.238) 3.01ms referer=None
+[I 2024-05-19 07:40:45.005 ServerApp] 302 GET / (@172.16.0.238) 0.40ms
+[I 2024-05-19 07:40:46.589 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.54ms
+[I 2024-05-19 07:40:53.430 ServerApp] Kernel started: 1bd9334b-1e21-4ff4-9464-936702657bc9
+[I 2024-05-19 07:40:56.571 ServerApp] Connecting to kernel 1bd9334b-1e21-4ff4-9464-936702657bc9.
+[I 2024-05-19 07:41:36.448 ServerApp] Kernel restarted: 1bd9334b-1e21-4ff4-9464-936702657bc9
+[I 2024-05-19 07:41:36.900 ServerApp] Starting buffering for 1bd9334b-1e21-4ff4-9464-936702657bc9:e0fe07e5-17d3-4d92-825a-0a4c5abac0fc
+[I 2024-05-19 07:41:38.410 ServerApp] Connecting to kernel 1bd9334b-1e21-4ff4-9464-936702657bc9.
+[I 2024-05-19 07:41:38.410 ServerApp] Restoring connection for 1bd9334b-1e21-4ff4-9464-936702657bc9:e0fe07e5-17d3-4d92-825a-0a4c5abac0fc
+[I 2024-05-19 07:41:38.416 ServerApp] Replaying 2 buffered messages
+[I 2024-05-19 13:05:30.227 ServerApp] Starting buffering for 1bd9334b-1e21-4ff4-9464-936702657bc9:e0fe07e5-17d3-4d92-825a-0a4c5abac0fc
+[W 2024-05-19 16:16:24.034 ServerApp] 404 GET /hub/api (@172.16.0.238) 3.27ms referer=None
+[I 2024-05-19 16:16:24.344 ServerApp] 302 GET / (@172.16.0.238) 0.43ms
+[I 2024-05-19 16:16:24.482 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.43ms
+[W 2024-05-19 16:16:24.810 ServerApp] 404 GET /hub/api (@172.16.0.238) 1.10ms referer=None
+[I 2024-05-19 16:16:24.829 ServerApp] 302 GET / (@172.16.0.238) 0.21ms
+[I 2024-05-19 16:16:24.832 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.41ms
+[I 2024-05-19 16:16:24.867 ServerApp] Connecting to kernel 1bd9334b-1e21-4ff4-9464-936702657bc9.
+[W 2024-05-19 16:16:27.006 ServerApp] 404 GET /nbextensions/jupyter-js-widgets/extension.js (@172.16.0.238) 2.57ms referer=None
+[W 2024-05-19 16:16:27.007 ServerApp] 404 GET /nbextensions/viewer/extension.js (@172.16.0.238) 0.58ms referer=None
+[W 2024-05-19 16:16:27.008 ServerApp] 404 GET /hub/api (@172.16.0.238) 0.62ms referer=None
+[W 2024-05-19 16:16:27.008 ServerApp] 404 GET /hub/api (@172.16.0.238) 0.94ms referer=None
+[I 2024-05-19 16:16:27.019 ServerApp] 302 GET / (@172.16.0.238) 0.39ms
+[I 2024-05-19 16:16:27.023 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.56ms
+[W 2024-05-19 16:16:27.033 ServerApp] 404 GET /nbextensions/jupyter-js-widgets/extension.js (@172.16.0.238) 1.31ms referer=None
+[W 2024-05-19 16:16:27.034 ServerApp] 404 GET /nbextensions/viewer/extension.js (@172.16.0.238) 1.56ms referer=None
+[W 2024-05-19 16:17:09.149 ServerApp] 404 GET /hub/api (@172.16.0.238) 3.26ms referer=None
+[I 2024-05-19 16:17:09.328 ServerApp] 302 GET / (@172.16.0.238) 0.39ms
+[I 2024-05-19 16:17:09.499 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.55ms

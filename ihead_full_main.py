@@ -80,7 +80,7 @@ if __name__ == '__main__':
     cfg.model_args.bos_num = cfg.data_args.bos_num
     set_random_seed(cfg.seed)
     d_name = float_to_str(cfg.data_args.delimiter_p)
-    meta_path = f"/data/tianyu_guo/birth/data/bos1_d" + d_name +"/meta.pickle" if cfg.data_args.delim_num == 1 else f"/data/tianyu_guo/birth/data/bos1_d" + d_name + "_delim2" +"/meta.pickle" 
+    meta_path = f"/data/tianyu_guo/birth/data/bos{cfg.data_args.bos_num}_d" + d_name +"/meta.pickle" if cfg.data_args.delim_num == 1 else f"/data/tianyu_guo/birth/data/bos{cfg.data_args.bos_num}_d" + d_name + "_delim2" +"/meta.pickle" 
     with open(meta_path, "rb") as f:
         meta_info = pickle.load(f)
     model_name = get_model_name(n_layers=cfg.model_args.n_layers, n_heads=cfg.model_args.n_heads, bos_num=cfg.data_args.bos_num, train_steps=cfg.max_iters, delim=cfg.data_args.delimiter_p, mix_p=cfg.data_args.mix_p)
