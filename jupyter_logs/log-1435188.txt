@@ -110,3 +110,17 @@ You can list all discoverable environments with `conda info --envs`.
 [W 2024-05-19 16:17:09.149 ServerApp] 404 GET /hub/api (@172.16.0.238) 3.26ms referer=None
 [I 2024-05-19 16:17:09.328 ServerApp] 302 GET / (@172.16.0.238) 0.39ms
 [I 2024-05-19 16:17:09.499 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.55ms
+[W 2024-05-19 20:24:28.613 ServerApp] 404 GET /hub/api (@172.16.0.238) 3.46ms referer=None
+[I 2024-05-19 20:24:28.616 ServerApp] 302 GET / (@172.16.0.238) 0.44ms
+[I 2024-05-19 20:24:28.622 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.47ms
+[I 2024-05-19 20:24:28.655 ServerApp] Connecting to kernel bcf2ae22-c18c-4772-bb1f-eec95c360e1e.
+[W 2024-05-19 20:24:29.361 ServerApp] 404 GET /nbextensions/viewer/extension.js (@172.16.0.238) 0.81ms referer=None
+[W 2024-05-19 20:24:29.362 ServerApp] 404 GET /hub/api (@172.16.0.238) 0.72ms referer=None
+[W 2024-05-19 20:24:29.363 ServerApp] 404 GET /hub/api (@172.16.0.238) 1.26ms referer=None
+[I 2024-05-19 20:24:29.365 ServerApp] 302 GET / (@172.16.0.238) 0.46ms
+[I 2024-05-19 20:24:29.367 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.58ms
+[W 2024-05-19 20:24:29.375 ServerApp] 404 GET /nbextensions/jupyter-js-widgets/extension.js (@172.16.0.238) 1.12ms referer=None
+[W 2024-05-19 20:24:29.375 ServerApp] 404 GET /nbextensions/viewer/extension.js (@172.16.0.238) 1.61ms referer=None
+[W 2024-05-19 20:24:29.441 ServerApp] 404 GET /nbextensions/jupyter-js-widgets/extension.js (@172.16.0.238) 0.89ms referer=None
+[I 2024-05-19 20:24:47.210 ServerApp] Starting buffering for bcf2ae22-c18c-4772-bb1f-eec95c360e1e:5ae4e4a2-a3b4-47b0-bee2-0331316f5ee4
+slurmstepd: error: *** JOB 1435188 ON compute-permanent-node-35 CANCELLED AT 2024-05-19T22:34:44 DUE TO TIME LIMIT ***

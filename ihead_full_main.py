@@ -133,7 +133,7 @@ if __name__ == '__main__':
     elif cfg.fine_grid_log < cfg.max_iters:
         log_steps = np.arange(0, cfg.fine_grid_log, 5).tolist() + np.linspace(cfg.fine_grid_log, cfg.max_iters, 5).tolist()
     else:
-        log_steps = np.arange(0, cfg.max_iters, 20).tolist()
+        log_steps = np.arange(0, cfg.max_iters+1, 20).tolist()
     for i, (x, y) in enumerate(iterate_batches(ds, batch_size=cfg.optim_args.batch_size, num_workers=cfg.num_data_workers)):
         if i in log_steps:
             training_state = {

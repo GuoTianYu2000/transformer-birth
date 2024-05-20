@@ -320,6 +320,9 @@ class Dataset:
         x = np.array(seqs).reshape(batch_size, self.seq_length + 1)
         return x
     
+    def get_triggers_pos(self, seqs):
+        triggers_pos = np.isin(seqs, self.idxs)
+        return triggers_pos
 def iterate_batches(dataset: Dataset,
                     batch_size: int = 20,
                     num_workers: int = 60,
@@ -554,8 +557,9 @@ class dormant_markov(Dataset):
                 seq.append(x_markov)
         return seq
     
-    def special_test(self, seqs):
-        raise NotImplementedError
+    def get_triggers_pos(self, seqs):
+        triggers_pos = np.isin(seqs, self.idxs)
+        return triggers_pos
 
 class dormant_copy(Dataset):
     def __init__(self, args: DataArgs, meta,
@@ -581,7 +585,7 @@ class dormant_copy(Dataset):
         triggers_pos = np.isin(seqs, self.idxs)
         return triggers_pos
     
-# p=0 <-> dormant_markov, p=1 <-> dormant_copy
+# p=0 <-> markov, p=1 <-> dormant_copy
 class dormant_copy_interpolate(Dataset):
     def __init__(self, args: DataArgs, meta,
                  train_test: Optional[str] = None,):
@@ -596,12 +600,12 @@ class dormant_copy_interpolate(Dataset):
         seq.append(self.custom_iid(None, rng, self.marginal2))
         while len(seq) <= self.seq_length:
             x, xp = seq[-1], seq[-2]
-            x_markov, x_markovp = self.markov_transition(x, rng), self.markov_transition(xp, rng)
+            x_markov = self.markov_transition(x, rng)
             if x in self.idxs:
                 if rng.random() < self.mix_p:
                     seq.append(xp)
                 else:
-                    seq.append(x_markovp)
+                    seq.append(x_markov)
             else:
                 seq.append(x_markov)
         return seq
@@ -990,7 +994,7 @@ class dormant_Biette(Dataset):
         triggers_pos = np.isin(seqs, self.idxs)
         return triggers_pos
 
-name_to_data = {'icl': icl, "markov": markov, "dormant_markov": dormant_markov, "dormant_copy": dormant_copy, "dormant_copy_2": dormant_copy, "dormant_double_tasks": dormant_double_tasks, "dormant_copy_interpolate": dormant_copy_interpolate, "dormant_markov_interpolate": dormant_markov_interpolate, "dormant_double_tasks_explore": dormant_double_tasks_explore, "dormant_double_tasks_explore1": dormant_double_tasks_explore1, "dormant_double_tasks_explore2": dormant_double_tasks_explore2, "dormant_double_tasks_explore3": dormant_double_tasks_explore3, "dormant_double_tasks_explore4": dormant_double_tasks_explore4, "dormant_two_kinds_copies": dormant_two_kinds_copies, "dormant_Biette": dormant_Biette}
+name_to_data = {'icl': icl, "markov": markov, "dormant_markov": dormant_markov, "dormant_copy": dormant_copy, "dormant_copy_2": dormant_copy, "dormant_double_tasks": dormant_double_tasks, "dormant_copy_interpolate": dormant_copy_interpolate, "dormant_markov_interpolate": dormant_markov_interpolate, "dormant_double_tasks_explore": dormant_double_tasks_explore, "dormant_double_tasks_explore1": dormant_double_tasks_explore1, "dormant_double_tasks_explore2": dormant_double_tasks_explore2, "dormant_double_tasks_explore3": dormant_double_tasks_explore3, "dormant_double_tasks_explore4": dormant_double_tasks_explore4, "dormant_two_kinds_copies": dormant_two_kinds_copies, "dormant_Biette": dormant_Biette, "default": Dataset}
 
 def make_dataset(cfg, meta):
     # data_name is the orignal name

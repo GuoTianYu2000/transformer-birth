@@ -1081,3 +1081,37 @@ You can list all discoverable environments with `conda info --envs`.
         raise web.HTTPError(403)
     tornado.web.HTTPError: HTTP 403: Forbidden
 [W 2024-05-19 17:02:39.223 ServerApp] 403 GET /api/sessions?1716138159201 (@172.16.0.238) 1.05ms referer=None
+[W 2024-05-19 22:39:31.000 ServerApp] 404 GET /hub/api (@172.16.0.238) 3.51ms referer=None
+[I 2024-05-19 22:39:31.003 ServerApp] 302 GET / (@172.16.0.238) 0.48ms
+[I 2024-05-19 22:39:31.009 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.43ms
+[W 2024-05-19 22:39:32.748 ServerApp] 404 GET /hub/api (@172.16.0.238) 3.57ms referer=None
+[I 2024-05-19 22:39:32.751 ServerApp] 302 GET / (@172.16.0.238) 0.44ms
+[I 2024-05-19 22:39:32.753 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.46ms
+[W 2024-05-19 22:39:44.586 ServerApp] 404 GET /hub/api (@172.16.0.238) 3.54ms referer=None
+[I 2024-05-19 22:39:44.588 ServerApp] 302 GET / (@172.16.0.238) 0.22ms
+[I 2024-05-19 22:39:44.594 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.35ms
+[I 2024-05-19 22:39:44.676 ServerApp] Kernel started: d7befb60-9f66-4daa-8471-c4cb45e1f06d
+[I 2024-05-19 22:39:45.919 ServerApp] Connecting to kernel d7befb60-9f66-4daa-8471-c4cb45e1f06d.
+[I 2024-05-20 01:40:25.680 ServerApp] Kernel restarted: d7befb60-9f66-4daa-8471-c4cb45e1f06d
+[I 2024-05-20 01:40:25.683 ServerApp] Starting buffering for d7befb60-9f66-4daa-8471-c4cb45e1f06d:525d1069-e4ea-4722-a71c-02f74ad86e0b
+[I 2024-05-20 01:40:25.690 ServerApp] Connecting to kernel d7befb60-9f66-4daa-8471-c4cb45e1f06d.
+[I 2024-05-20 01:40:25.690 ServerApp] Restoring connection for d7befb60-9f66-4daa-8471-c4cb45e1f06d:525d1069-e4ea-4722-a71c-02f74ad86e0b
+[W 2024-05-20 02:51:56.163 ServerApp] 404 GET /hub/api (@172.16.0.238) 4.95ms referer=None
+[I 2024-05-20 02:51:56.165 ServerApp] 302 GET / (@172.16.0.238) 0.23ms
+[I 2024-05-20 02:51:56.173 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.30ms
+[I 2024-05-20 02:51:56.294 ServerApp] Kernel started: 988314a5-a6fa-43a2-99e8-4af7e34c34cf
+[I 2024-05-20 02:52:01.874 ServerApp] Connecting to kernel 988314a5-a6fa-43a2-99e8-4af7e34c34cf.
+[W 2024-05-20 04:51:27.790 ServerApp] 404 GET /hub/api (@172.16.0.238) 43.81ms referer=None
+[I 2024-05-20 04:51:27.796 ServerApp] 302 GET / (@172.16.0.238) 0.26ms
+[I 2024-05-20 04:51:27.810 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.58ms
+[W 2024-05-20 04:51:29.288 ServerApp] 404 GET /hub/api (@172.16.0.238) 21.56ms referer=None
+[W 2024-05-20 04:51:29.289 ServerApp] 404 GET /hub/api (@172.16.0.238) 22.18ms referer=None
+[I 2024-05-20 04:51:29.292 ServerApp] 302 GET / (@172.16.0.238) 0.19ms
+[I 2024-05-20 04:51:29.293 ServerApp] 302 GET / (@172.16.0.238) 0.17ms
+[I 2024-05-20 04:51:29.297 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.43ms
+[I 2024-05-20 04:51:29.298 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.72ms
+[W 2024-05-20 04:51:34.231 ServerApp] 404 GET /hub/api (@172.16.0.238) 14.34ms referer=None
+[I 2024-05-20 04:51:34.234 ServerApp] 302 GET / (@172.16.0.238) 0.35ms
+[I 2024-05-20 04:51:34.239 JupyterNotebookApp] 302 GET /tree? (@172.16.0.238) 0.37ms
+[I 2024-05-20 04:51:34.390 ServerApp] Kernel started: e39fbd32-7183-4796-8991-e8d1fb52d814
+[I 2024-05-20 04:51:39.843 ServerApp] Connecting to kernel e39fbd32-7183-4796-8991-e8d1fb52d814.
