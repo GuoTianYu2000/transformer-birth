@@ -41,8 +41,14 @@ def get_model_name(n_layers=1, n_heads=1, bos_num=1, train_steps=4999, delim=0, 
 
 
 
+<<<<<<< HEAD
 def load_model(run_path_local="/Users/guotianyu/GitHub/birth/gens/special/dormant_copy", run_path_server="/data/tianyu/birth/gens/special/dormant_copy_2", n_layers=1, n_heads=1, bos_num=1, train_steps=4999, delim=0, mix_p=None, with_data=True, data_path_local="/Users/guotianyu/GitHub/birth/data", data_path_server="/data/tianyu/birth/data"):
     model_name = get_model_name(n_layers, n_heads, bos_num, train_steps, delim, mix_p,)
+=======
+def load_model(run_path_local="/Users/guotianyu/GitHub/birth/gens/special/dormant_copy", run_path_server="/data/tianyu_guo/birth/gens/special/dormant_copy_2", n_layers=1, n_heads=1, bos_num=1, train_steps=4999, delim=0, mix_p=None, with_data=True, model_name=None, data_path_local="/Users/guotianyu/GitHub/birth/data", data_path_server="/data/tianyu_guo/birth/data", seeds=[42, 27]):
+    if model_name is None:
+        model_name = get_model_name(n_layers, n_heads, bos_num, train_steps, delim, mix_p,)
+>>>>>>> f583ba4fd5d14b66085d6742b5791f558ea84fd0
     path_local = os.path.join(run_path_local, model_name, "params.yaml")
     path_server = os.path.join(run_path_server, model_name, "params.yaml")
 
@@ -83,7 +89,7 @@ def load_model(run_path_local="/Users/guotianyu/GitHub/birth/gens/special/dorman
 
 
         ds = make_dataset(cfg, meta_info)
-        x = ds.gen_batch(rng=np.random.default_rng([42, 27]), batch_size=cfg.optim_args.batch_size)
+        x = ds.gen_batch(rng=np.random.default_rng(seeds), batch_size=cfg.optim_args.batch_size)
         x = torch.from_numpy(x)
         # y = torch.from_numpy(y)
         y = x[:, 1:]
@@ -120,10 +126,20 @@ def get_oracle_predicts(x, ds):
                 predicts_oracle[i, j, :] = ds.cond[x[i, j]]
     return torch.from_numpy(predicts_oracle).float()
 
+<<<<<<< HEAD
 def get_risk(probs, predicts, predict_in_logits):
+=======
+def get_risk(probs, predicts, predict_in_logits, triggers_pos):
+>>>>>>> f583ba4fd5d14b66085d6742b5791f558ea84fd0
     if predict_in_logits:
         predicts = torch.nn.functional.softmax(predicts, dim=-1)
     loss = - torch.log(predicts)
     loss[torch.where(probs == 0)] = 0
     risk = torch.einsum("ikj,ikj->ik", probs, loss)
+<<<<<<< HEAD
     return risk
+=======
+    risk_icl = risk[triggers_pos].mean()
+    risk_markov = risk[~triggers_pos].mean()
+    return risk, risk_icl, risk_markov
+>>>>>>> f583ba4fd5d14b66085d6742b5791f558ea84fd0

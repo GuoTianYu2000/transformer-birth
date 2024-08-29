@@ -21,9 +21,9 @@ class forward_hook():
         self.target_name = target_name
 
     def __call__(self, layer_idx, name, func, *args):
-        if self.target_layers is not None and layer_idx in self.target_layers and name == self.target_name:
+        if self.target_layers is not None and layer_idx in self.target_layers and name in self.target_name:
             # no rope
-            return self.intervention(func, *args)
+            return self.intervention(func, layer_idx, name, *args)
         else:
             # not zero-out layers
             if func is None:
@@ -36,8 +36,8 @@ class forward_hook():
 
 class test_value(forward_hook):
     def __init__(self, target_layers) -> None:
-        super().__init__(target_layers, target_name = "attn_weights", )
-    def intervention(self, func, *args):
+        super().__init__(target_layers, target_name = ["attn_weights"], )
+    def intervention(self, func, layer_idx, name, *args):
         attns = func(*args)
         B, H, N, N = attns.shape
         assert B <= N
@@ -48,8 +48,8 @@ class test_value(forward_hook):
 
 class test_sink(forward_hook):
     def __init__(self, target_layers) -> None:
-        super().__init__(target_layers, target_name = "attn_weights", )
-    def intervention(self, func, *args):
+        super().__init__(target_layers, target_name = ["attn_weights"], )
+    def intervention(self, func, layer_idx, name, *args):
         attns = func(*args)
         B, H, N, N = attns.shape
         for i in range(B):
@@ -59,15 +59,27 @@ class test_sink(forward_hook):
 
 class clean_attention(forward_hook):
     def __init__(self, target_layers, dormant_pos) -> None:
-        super().__init__(target_layers, target_name = "attn_weights", )
+        super().__init__(target_layers, target_name = ["attn_weights"], )
         self.dormant_pos = dormant_pos
-    def intervention(self, func, *args):
+    def intervention(self, func, layer_idx, name, *args):
         attns = func(*args)
         B, H, N, N = attns.shape
         attns[self.dormant_pos[0], 0, self.dormant_pos[1], :] = 0
         attns[self.dormant_pos[0], 0, self.dormant_pos[1], 0] = 1
         return attns
 
+class zero_out_attention(forward_hook):
+    def __init__(self, target_layers, target_heads) -> None:
+        super().__init__(target_layers, target_name = ["attn_weights"], )
+        self.target_heads = target_heads
+    def intervention(self, func, layer_idx, name, *args):
+        attns = func(*args)
+        zero_out_indices = []
+        for (l, h) in self.target_heads:
+            if l == layer_idx:
+                zero_out_indices.append(h)
+        attns[:, zero_out_indices, :, :] = 0
+        return attns
 
 @dataclass
 class ModelArgs:

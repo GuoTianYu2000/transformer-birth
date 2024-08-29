@@ -105,6 +105,14 @@ class Dataset:
     def uniform_transition(self, rng, subset):
         return rng.choice(subset)
     
+    def uniform_transition_no_unseen(self, x, rng, drop=[]):
+        if x in self.idxs:
+            subset = set(np.where(self.cond[x, :] > 0)[0].tolist()) - set(self.idxs) - set(drop)
+        else:
+            subset = set(np.where(self.cond[x, :] > 0)[0].tolist()) - set(drop)
+        subset = list(subset)
+        x_next = rng.choice(subset)
+        return x_next
 
     def update_identity_context(self, x, contexts):
         contexts[x] = x
@@ -312,13 +320,22 @@ class Dataset:
             seq = self.gen_seq(rng)
             yield seq
 
-    def gen_batch(self, rng: np.random.Generator, batch_size: int):
+    def gen_batch(self, rng: np.random.Generator, batch_size: int, ):
         seqs = []
         for _ in range(batch_size):
             seq = self.gen_seq(rng)
             seqs += seq
         x = np.array(seqs).reshape(batch_size, self.seq_length + 1)
         return x
+    
+    def gen_batch_ood(self, rng: np.random.Generator, batch_size: int, drop=[]):
+        seqs = []
+        for _ in range(batch_size):
+            seq = self.gen_ood(rng, drop)
+            seqs += seq
+        x = np.array(seqs).reshape(batch_size, self.seq_length + 1)
+        return x
+
     
     def get_triggers_pos(self, seqs):
         triggers_pos = np.isin(seqs, self.idxs)
@@ -569,6 +586,8 @@ class dormant_copy(Dataset):
         self.description = "ONLY use copy. In each seq, implement markov transition. At trigger token i, predict (i+1) with copying (i-1)."
         self.expect = "(copy head, dormant when not on trigger tokens)."
         self.marginal2 = self.no_trigger_init(None)
+
+
     def gen_seq(self, rng: np.random.Generator):
         seq = self.bos_init()
         seq.append(self.custom_iid(None, rng, self.marginal2))
@@ -583,6 +602,13 @@ class dormant_copy(Dataset):
                 seq.append(xp)
             else:
                 seq.append(x_markov)
+        return seq
+    
+    def gen_ood(self, rng: np.random.Generator, drop=[]):
+        seq = self.bos_init()
+        seq.append(self.custom_iid(None, rng, self.marginal2))
+        while len(seq) <= self.seq_length:
+            seq.append(self.uniform_transition_no_unseen(seq[-1], rng, drop))
         return seq
     
     def get_triggers_pos(self, seqs):

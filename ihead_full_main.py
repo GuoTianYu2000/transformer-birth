@@ -46,7 +46,7 @@ class OptimArgs:
 
 @dataclass
 class WandbArgs:
-    project: str = 'birth'
+    project: str = 'birth_final'
     entity: str = 'tianyu_guo'
     name: str = 'dormant_test'
 
@@ -60,7 +60,7 @@ class TrainerArgs:
     eval_delta: int = 5
     log_norms: bool = False
     log_probes: bool = False
-    num_data_workers: int = 60
+    num_data_workers: int = 24
     save_dir: Optional[str] = None
     fine_grid_log: int = 0
     root_dir: str = ''
@@ -87,7 +87,7 @@ if __name__ == '__main__':
     cfg.save_dir = os.path.join(cfg.save_dir, model_name)
     # pdb.set_trace()
     ds = make_dataset(cfg, meta_info)
-    cfg.model_args.vocab_size = ds.num_tokens        
+    cfg.model_args.vocab_size = ds.num_tokens   
     if cfg.save_dir is not None:
         outdir = Path(cfg.root_dir) / Path(cfg.save_dir)
         outdir.mkdir(parents=True, exist_ok=True)
