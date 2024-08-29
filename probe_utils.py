@@ -41,8 +41,9 @@ def get_model_name(n_layers=1, n_heads=1, bos_num=1, train_steps=4999, delim=0, 
 
 
 
-def load_model(run_path_local="/Users/guotianyu/GitHub/birth/gens/special/dormant_copy", run_path_server="/data/tianyu_guo/birth/gens/special/dormant_copy_2", n_layers=1, n_heads=1, bos_num=1, train_steps=4999, delim=0, mix_p=None, with_data=True, data_path_local="/Users/guotianyu/GitHub/birth/data", data_path_server="/data/tianyu_guo/birth/data"):
-    model_name = get_model_name(n_layers, n_heads, bos_num, train_steps, delim, mix_p,)
+def load_model(run_path_local="/Users/guotianyu/GitHub/birth/gens/special/dormant_copy", run_path_server="/data/tianyu_guo/birth/gens/special/dormant_copy_2", n_layers=1, n_heads=1, bos_num=1, train_steps=4999, delim=0, mix_p=None, with_data=True, model_name=None, data_path_local="/Users/guotianyu/GitHub/birth/data", data_path_server="/data/tianyu_guo/birth/data", seeds=[42, 27]):
+    if model_name is None:
+        model_name = get_model_name(n_layers, n_heads, bos_num, train_steps, delim, mix_p,)
     path_local = os.path.join(run_path_local, model_name, "params.yaml")
     path_server = os.path.join(run_path_server, model_name, "params.yaml")
 
@@ -83,7 +84,7 @@ def load_model(run_path_local="/Users/guotianyu/GitHub/birth/gens/special/dorman
 
 
         ds = make_dataset(cfg, meta_info)
-        x = ds.gen_batch(rng=np.random.default_rng([42, 27]), batch_size=cfg.optim_args.batch_size)
+        x = ds.gen_batch(rng=np.random.default_rng(seeds), batch_size=cfg.optim_args.batch_size)
         x = torch.from_numpy(x)
         # y = torch.from_numpy(y)
         y = x[:, 1:]
@@ -109,3 +110,23 @@ def get_triggers(ds, model, hook, cutoff=0.89):
     attns_to_0 = outputs_list_dormant[0]['attn_weights'][:, 0, -1, 0].detach().cpu().numpy()
     return trigger_toks, attns_to_0, markov_tok
 
+def get_oracle_predicts(x, ds):
+    B, N, V = x.shape[0], x.shape[1], ds.num_tokens
+    predicts_oracle = np.zeros((B, N, V))
+    for i in range(x.shape[0]):
+        for j in range(x.shape[1]):
+            if x[i, j] in ds.idxs:
+                predicts_oracle[i, j, x[i, j-1]] = 1
+            else:
+                predicts_oracle[i, j, :] = ds.cond[x[i, j]]
+    return torch.from_numpy(predicts_oracle).float()
+
+def get_risk(probs, predicts, predict_in_logits, triggers_pos):
+    if predict_in_logits:
+        predicts = torch.nn.functional.softmax(predicts, dim=-1)
+    loss = - torch.log(predicts)
+    loss[torch.where(probs == 0)] = 0
+    risk = torch.einsum("ikj,ikj->ik", probs, loss)
+    risk_icl = risk[triggers_pos].mean()
+    risk_markov = risk[~triggers_pos].mean()
+    return risk, risk_icl, risk_markov
