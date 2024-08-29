@@ -41,7 +41,7 @@ def get_model_name(n_layers=1, n_heads=1, bos_num=1, train_steps=4999, delim=0, 
 
 
 
-def load_model(run_path_local="/Users/guotianyu/GitHub/birth/gens/special/dormant_copy", run_path_server="/data/tianyu_guo/birth/gens/special/dormant_copy_2", n_layers=1, n_heads=1, bos_num=1, train_steps=4999, delim=0, mix_p=None, with_data=True, data_path_local="/Users/guotianyu/GitHub/birth/data", data_path_server="/data/tianyu_guo/birth/data"):
+def load_model(run_path_local="/Users/guotianyu/GitHub/birth/gens/special/dormant_copy", run_path_server="/data/tianyu/birth/gens/special/dormant_copy_2", n_layers=1, n_heads=1, bos_num=1, train_steps=4999, delim=0, mix_p=None, with_data=True, data_path_local="/Users/guotianyu/GitHub/birth/data", data_path_server="/data/tianyu/birth/data"):
     model_name = get_model_name(n_layers, n_heads, bos_num, train_steps, delim, mix_p,)
     path_local = os.path.join(run_path_local, model_name, "params.yaml")
     path_server = os.path.join(run_path_server, model_name, "params.yaml")
