@@ -109,3 +109,21 @@ def get_triggers(ds, model, hook, cutoff=0.89):
     attns_to_0 = outputs_list_dormant[0]['attn_weights'][:, 0, -1, 0].detach().cpu().numpy()
     return trigger_toks, attns_to_0, markov_tok
 
+def get_oracle_predicts(x, ds):
+    B, N, V = x.shape[0], x.shape[1], ds.num_tokens
+    predicts_oracle = np.zeros((B, N, V))
+    for i in range(x.shape[0]):
+        for j in range(x.shape[1]):
+            if x[i, j] in ds.idxs:
+                predicts_oracle[i, j, x[i, j-1]] = 1
+            else:
+                predicts_oracle[i, j, :] = ds.cond[x[i, j]]
+    return torch.from_numpy(predicts_oracle).float()
+
+def get_risk(probs, predicts, predict_in_logits):
+    if predict_in_logits:
+        predicts = torch.nn.functional.softmax(predicts, dim=-1)
+    loss = - torch.log(predicts)
+    loss[torch.where(probs == 0)] = 0
+    risk = torch.einsum("ikj,ikj->ik", probs, loss)
+    return risk

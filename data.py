@@ -573,6 +573,10 @@ class dormant_copy(Dataset):
         seq = self.bos_init()
         seq.append(self.custom_iid(None, rng, self.marginal2))
         while len(seq) <= self.seq_length:
+            if len(seq) == 1:
+                x_markov = self.markov_transition(seq[-1], rng)
+                seq.append(x_markov)
+                continue
             x, xp = seq[-1], seq[-2]
             x_markov = self.markov_transition(x, rng)
             if x in self.idxs:
