@@ -43,9 +43,6 @@ class OptimArgs:
     momentum: float = 0.9  # for SGD
     batch_size: int = 64
     use_sgd: bool = False  # otherwise use AdamW
-    seperate_lr: bool = False
-    massiv_lr: float = 0.0003
-    copy_lr: float = 0.03
 
 @dataclass
 class WandbArgs:
@@ -83,18 +80,39 @@ if __name__ == '__main__':
            wandb_args=WandbArgs(),
            simple_model_args=SimpleModelArgs(),
         )
-    cli_args = OmegaConf.from_cli()
-    cfg = OmegaConf.merge(OmegaConf.structured(args), cli_args)
-    # cfg.model_args.bos_num = cfg.data_args.bos_num
+    cfg = OmegaConf.merge(OmegaConf.structured(args))
+    cfg.use_simple_model = True
+    cfg.device_num = 0
+    cfg.max_iters = 10000
+    cfg.task_name = "dormant_copy"
+    cfg.save_dir = "/data/tianyu/birth/gens/pre-iclr/dynamics/SimpleModel"
+    cfg.data_args.bos_num = 1
+    cfg.data_args.delimiter_p = 0
+    cfg.data_args.delim_num = 1
+    cfg.data_args.mix_p = 0
+    cfg.data_args.k = 3
+    cfg.data_args.fixed_special_toks = True
+    cfg.model_args.n_layers = 3
+    cfg.model_args.n_heads = 1
+    cfg.simple_model_args.n_layers = 3
+    cfg.simple_model_args.hidden_dim = 128
+    cfg.simple_model_args.use_vo = True
+    cfg.simple_model_args.use_ln_in_copy_layer = True
+    cfg.simple_model_args.no_attn = [0, ]
+    cfg.simple_model_args.no_ffn = [2, ]
+    cfg.wandb_args.name = "test"
+
+
+
     set_random_seed(cfg.seed)
     torch.cuda.set_device(cfg.device_num)
     d_name = float_to_str(cfg.data_args.delimiter_p)
     meta_path = f"/data/tianyu/birth/data/bos{cfg.data_args.bos_num}_d" + d_name +"/meta.pickle" if cfg.data_args.delim_num == 1 else f"/data/tianyu/birth/data/bos{cfg.data_args.bos_num}_d" + d_name + "_delim2" +"/meta.pickle"
     with open(meta_path, "rb") as f:
         meta_info = pickle.load(f)
-    model_name = get_model_name(bos_num=cfg.data_args.bos_num, train_steps=cfg.max_iters, delim=cfg.data_args.delimiter_p, mix_p=cfg.data_args.mix_p, lr=cfg.optim_args.learning_rate, use_simple_model=cfg.use_simple_model, seed=cfg.seed, **(cfg.model_args if not cfg.use_simple_model else cfg.simple_model_args))
+    model_name = get_model_name(bos_num=cfg.data_args.bos_num, train_steps=cfg.max_iters, delim=cfg.data_args.delimiter_p, mix_p=cfg.data_args.mix_p, lr=cfg.optim_args.learning_rate, use_simple_model=cfg.use_simple_model, **(cfg.model_args if not cfg.use_simple_model else cfg.simple_model_args))
     cfg.save_dir = os.path.join(cfg.save_dir, model_name)
-    # pdb.set_trace()
+
     ds = make_dataset(cfg, meta_info)
     idxs_in_torch = torch.Tensor(ds.idxs).cuda()
     cfg.model_args.vocab_size = ds.num_tokens  
@@ -124,25 +142,12 @@ if __name__ == '__main__':
                 weight_decay=cfg.optim_args.weight_decay,
                 momentum=cfg.optim_args.momentum)
     else:
-        if cfg.use_simple_model and cfg.optim_args.seperate_lr:
-            params_except_copy = [param for name, param in model.named_parameters() if 'layers.1' not in name]
-            params_copy = [param for name, param in model.named_parameters() if 'layers.1' in name]
-            optimizer = torch.optim.AdamW(
-                [
-                    {"params": params_except_copy, "lr": cfg.optim_args.massiv_lr, "weight_decay": cfg.optim_args.weight_decay,
-                    "betas": (0.9, 0.99), "eps": 1e-8},
-                    {"params": params_copy, "lr": cfg.optim_args.copy_lr, "weight_decay": cfg.optim_args.weight_decay,
-                    "betas": (0.9, 0.99), "eps": 1e-8},
-                ]
-            )
-        else:
-            optimizer = torch.optim.AdamW(
+        optimizer = torch.optim.AdamW(
                 model.parameters(),
                 lr=cfg.optim_args.learning_rate,
                 weight_decay=cfg.optim_args.weight_decay,
                 betas=(0.9, 0.99),
                 eps=1e-8)
-        
     # pdb.set_trace()
     # a test batch for experimentation
     x_exp = ds.gen_batch(np.random.default_rng(0), 128)

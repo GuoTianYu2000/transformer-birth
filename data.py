@@ -97,6 +97,12 @@ class Dataset:
         text = [self.itos[idx] for idx in idxs]
         return text
     
+    def update_decoder(self, ):
+        self.itos[-1] = ''
+        self.itos[0] = '\\n'
+        for i in self.idxs:
+            self.itos[i] = 't'
+    
     def update_cond(self, probs, idxs, p):
         probs_onehot = np.array([1 if i in idxs else 0 for i in self.tok_range])
         probs = (1 - p) * probs + p * probs_onehot
