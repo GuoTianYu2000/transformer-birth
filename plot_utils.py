@@ -22,7 +22,7 @@ from typing import List, Optional, Tuple
 import os
 # os.chdir("/data/tianyu_guo/birth")
 from data import DataArgs, Dataset, iterate_batches, make_dataset
-from ihead_full_model import ModelArgs, Transformer, forward_hook, test_value, test_sink
+from birth.model import ModelArgs, Transformer, forward_hook, test_value, test_sink
 
 
 def plot_attn_weights(outputs_list, seqs, ds, seq_indices, seq_len, layer_idx, head_idx, seq_start=0, keep_label=None, ticks_size=14, titles=[], save_files_fn=[], fn=None, red_trigger=False, only_trigger=False, cmap="Blues", use_bos=True, use_simple=False, use_grid=False):

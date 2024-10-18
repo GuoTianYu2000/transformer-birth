@@ -1030,6 +1030,37 @@ class dormant_Biette(Dataset):
         triggers_pos = np.isin(seqs, self.idxs)
         return triggers_pos
 
+
+
+class multitask(Dataset):
+    def __init__(self, args: DataArgs, meta,
+                 train_test: Optional[str] = None,):
+        super().__init__(args, meta, train_test,)
+        self.description = "Two bos tokens, one for each task"
+        self.expect = "two heads: one head taking responsibility for each task"
+        self.marginal2 = self.no_trigger_init(None)
+        
+
+    def gen_seq(self, rng: np.random.Generator):
+        seq = self.bos_init()
+        marginal = self.rand_init_no_trigger(rng)
+        seq.append(self.custom_iid(None, rng, marginal))
+        contexts = {}
+        while len(seq) <= self.seq_length:
+            x, xp = seq[-1], seq[-2]
+            x_markov, x_icl = self.markov_transition(x, rng), self.icl_transition(x, rng, contexts)
+            contexts = self.update_previous_context(x, xp, contexts)
+            if x_icl is not None:
+                seq.append(x_icl)
+            else:
+                seq.append(x_markov)
+
+        return seq
+    
+    def get_triggers_pos(self, seqs):
+        triggers_pos = np.isin(seqs, self.idxs)
+        return triggers_pos
+
 name_to_data = {'icl': icl, "markov": markov, "dormant_markov": dormant_markov, "dormant_copy": dormant_copy, "dormant_copy_2": dormant_copy, "dormant_double_tasks": dormant_double_tasks, "dormant_copy_interpolate": dormant_copy_interpolate, "dormant_markov_interpolate": dormant_markov_interpolate, "dormant_double_tasks_explore": dormant_double_tasks_explore, "dormant_double_tasks_explore1": dormant_double_tasks_explore1, "dormant_double_tasks_explore2": dormant_double_tasks_explore2, "dormant_double_tasks_explore3": dormant_double_tasks_explore3, "dormant_double_tasks_explore4": dormant_double_tasks_explore4, "dormant_two_kinds_copies": dormant_two_kinds_copies, "dormant_Biette": dormant_Biette, "default": Dataset}
 
 def make_dataset(cfg, meta):

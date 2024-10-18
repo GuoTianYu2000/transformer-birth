@@ -21,7 +21,7 @@ from torch.nn import functional as F
 from typing import List, Optional, Tuple
 
 from data import *
-from ihead_full_model import *
+from birth.model import *
 from tqdm import tqdm
 from probe_utils import get_model_name
 

@@ -5,7 +5,7 @@ import seaborn as sns
 import os
 from omegaconf import OmegaConf
 from data import DataArgs, Dataset, iterate_batches, make_dataset
-from ihead_full_model import *
+from birth.model import *
 import pickle
 import numpy as np
 from torch.nn import functional as F
