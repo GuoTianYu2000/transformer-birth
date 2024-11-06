@@ -584,7 +584,7 @@ class dormant_markov(Dataset):
         triggers_pos = np.isin(seqs, self.idxs)
         return triggers_pos
 
-class bbm(Dataset):
+class dormant_copy(Dataset):
     def __init__(self, args: DataArgs, meta,
                  train_test: Optional[str] = None,):
         super().__init__(args, meta, train_test,)
@@ -621,8 +621,8 @@ class bbm(Dataset):
         triggers_pos = np.isin(seqs, self.idxs)
         return triggers_pos
     
-# p=0 <-> markov, p=1 <-> bbm
-class bbm_interpolate(Dataset):
+# p=0 <-> markov, p=1 <-> dormant_copy
+class dormant_copy_interpolate(Dataset):
     def __init__(self, args: DataArgs, meta,
                  train_test: Optional[str] = None,):
         super().__init__(args, meta, train_test,)
@@ -684,7 +684,7 @@ class dormant_double_tasks(Dataset):
                  train_test: Optional[str] = None,):
         super().__init__(args, meta, train_test,)
         assert self.delimiter_p > 0
-        self.description = "It is a mix of two heads, one with the same mechanism with bbm_2, and the other one is the change of context. Sepcifically, after the change of context delimiter, the all tokens except for triggers would get a fixed permutation."
+        self.description = "It is a mix of two heads, one with the same mechanism with dormant_copy_2, and the other one is the change of context. Sepcifically, after the change of context delimiter, the all tokens except for triggers would get a fixed permutation."
         self.expect = "(L1: (H1: copy head, dormant when not on trigger tokens), (H2: delimiter detection head, dormant when there's no delimiter)))."
         # markov_tok = [i for i in self.tok_range if i not in self.idxs and i not in self.bos and i != self.delimiter]
         non_special_tok = [i for i in self.tok_range if i not in self.bos and i != self.delimiter]
@@ -1001,7 +1001,7 @@ class dormant_two_kinds_copies(Dataset):
         return triggers_pos
 
 
-# I feel this dgp is not that necessary since it only adds a new procedure (L2) in bbm.
+# I feel this dgp is not that necessary since it only adds a new procedure (L2) in dormant_copy.
 class dormant_Biette(Dataset):
     def __init__(self, args: DataArgs, meta,
                  train_test: Optional[str] = None,):
@@ -1061,7 +1061,7 @@ class multitask(Dataset):
         triggers_pos = np.isin(seqs, self.idxs)
         return triggers_pos
 
-name_to_data = {'icl': icl, "markov": markov, "dormant_markov": dormant_markov, "bbm": bbm, "bbm_2": bbm, "dormant_double_tasks": dormant_double_tasks, "bbm_interpolate": bbm_interpolate, "dormant_markov_interpolate": dormant_markov_interpolate, "dormant_double_tasks_explore": dormant_double_tasks_explore, "dormant_double_tasks_explore1": dormant_double_tasks_explore1, "dormant_double_tasks_explore2": dormant_double_tasks_explore2, "dormant_double_tasks_explore3": dormant_double_tasks_explore3, "dormant_double_tasks_explore4": dormant_double_tasks_explore4, "dormant_two_kinds_copies": dormant_two_kinds_copies, "dormant_Biette": dormant_Biette, "default": Dataset}
+name_to_data = {'icl': icl, "markov": markov, "dormant_markov": dormant_markov, "dormant_copy": dormant_copy, "dormant_copy_2": dormant_copy, "dormant_double_tasks": dormant_double_tasks, "dormant_copy_interpolate": dormant_copy_interpolate, "dormant_markov_interpolate": dormant_markov_interpolate, "dormant_double_tasks_explore": dormant_double_tasks_explore, "dormant_double_tasks_explore1": dormant_double_tasks_explore1, "dormant_double_tasks_explore2": dormant_double_tasks_explore2, "dormant_double_tasks_explore3": dormant_double_tasks_explore3, "dormant_double_tasks_explore4": dormant_double_tasks_explore4, "dormant_two_kinds_copies": dormant_two_kinds_copies, "dormant_Biette": dormant_Biette, "default": Dataset}
 
 def make_dataset(cfg, meta):
     # data_name is the orignal name

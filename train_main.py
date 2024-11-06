@@ -21,7 +21,7 @@ from torch.nn import functional as F
 from typing import List, Optional, Tuple
 
 from data import *
-from model import *
+from birth.model import *
 from tqdm import tqdm
 from probe_utils import get_model_name
 
@@ -51,7 +51,7 @@ class OptimArgs:
 class WandbArgs:
     project: str = 'birth_dynamics'
     entity: str = 'tianyu_guo'
-    name: str = 'bbm'
+    name: str = 'dormant_copy'
 
 @dataclass
 class TrainerArgs:
@@ -89,7 +89,7 @@ if __name__ == '__main__':
     set_random_seed(cfg.seed)
     torch.cuda.set_device(cfg.device_num)
     d_name = float_to_str(cfg.data_args.delimiter_p)
-    meta_path = f"~/data/bos{cfg.data_args.bos_num}_d" + d_name +"/meta.pickle" if cfg.data_args.delim_num == 1 else f"~/data/bos{cfg.data_args.bos_num}_d" + d_name + "_delim2" +"/meta.pickle"
+    meta_path = f"/data/tianyu/birth/data/bos{cfg.data_args.bos_num}_d" + d_name +"/meta.pickle" if cfg.data_args.delim_num == 1 else f"/data/tianyu/birth/data/bos{cfg.data_args.bos_num}_d" + d_name + "_delim2" +"/meta.pickle"
     with open(meta_path, "rb") as f:
         meta_info = pickle.load(f)
     model_name = get_model_name(bos_num=cfg.data_args.bos_num, train_steps=cfg.max_iters, delim=cfg.data_args.delimiter_p, mix_p=cfg.data_args.mix_p, lr=cfg.optim_args.learning_rate, use_simple_model=cfg.use_simple_model, seed=cfg.seed, **(cfg.model_args if not cfg.use_simple_model else cfg.simple_model_args))

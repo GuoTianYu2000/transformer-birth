@@ -26,8 +26,8 @@ from ihead_full_model import ModelArgs, Transformer, forward_hook, test_value, t
 
 fn = "/data/tianyu_guo/birth/figures"
 
-run_path_server = "/data/tianyu_guo/birth/gens/pre_final/bbm"
-# run_path_server2="/data/tianyu_guo/birth/gens/special/bbm_2"
+run_path_server = "/data/tianyu_guo/birth/gens/pre_final/dormant_copy"
+# run_path_server2="/data/tianyu_guo/birth/gens/special/dormant_copy_2"
 model, cfg, x, y, ds = load_model(run_path_local="/Users/guotianyu/GitHub/birth/gens/special/markov", run_path_server=run_path_server, n_layers=3, n_heads=1, bos_num=1, train_steps=9980, delim=0, with_data=True, data_path_local="/Users/guotianyu/GitHub/birth/data", data_path_server="/data/tianyu_guo/birth/data")
 hook = forward_hook(target_layers=[], target_name="")
 predicts, outputs_list = model.modified_forward_with_hook(x, hook)
@@ -38,8 +38,8 @@ trigger_toks, attns_to_0, markov_tok = get_triggers(ds, model, hook, cutoff=0.89
 norms_list = {}
 steps_list = []
 n_layers, n_heads, bos_num = 3, 1, 1
-# f"/data/tianyu_guo/birth/gens/special/bbm_2/model_L{n_layers}_H{n_heads}_bos{bos_num}_delim0/state_{train_steps}.pt"
-dir_name = f"/data/tianyu_guo/birth/gens/pre_final/bbm/model_L{n_layers}_H{n_heads}_bos{bos_num}_delim0"
+# f"/data/tianyu_guo/birth/gens/special/dormant_copy_2/model_L{n_layers}_H{n_heads}_bos{bos_num}_delim0/state_{train_steps}.pt"
+dir_name = f"/data/tianyu_guo/birth/gens/pre_final/dormant_copy/model_L{n_layers}_H{n_heads}_bos{bos_num}_delim0"
 model = model.cuda()
 x = x.cuda()
 y = y.cuda()
