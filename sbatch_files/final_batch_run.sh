@@ -26,7 +26,7 @@ do
 done
 done
 
-# ablation 1: Bietti's task
+# ablation 1: Biette's task
 for layer_idx in "${layer_values[@]}"
 do
   python ihead_full_main.py max_iters=${iter_num} log_probes=True eval_delta=5  task_name=default fine_grid_log=0 seperate_loss=True seed=42\
