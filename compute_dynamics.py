@@ -28,7 +28,7 @@ from ihead_full_model import *
 
 
 def compute_dynamic_traj(run_path_server, no_attn=(),):
-    model_loader = ModelLoader(run_path_local="/Users/guotianyu/GitHub/birth/gens/special/markov", run_path_server=run_path_server, bos_num=1, train_steps=10000, delim=0, n_layers=3, n_heads=1, no_attn_norm=(), no_ffn_norm=(), no_attn=no_attn, no_ffn=(), linear_ffn=(), with_data=True, with_optim=True, data_path_local="/Users/guotianyu/GitHub/birth/data", data_path_server="/data/tianyu/birth/data", device=device)
+    model_loader = ModelLoader(run_path_local="/Users/guotianyu/GitHub/birth/gens/special/markov", run_path_server=run_path_server, bos_num=1, train_steps=10000, delim=0, n_layers=3, n_heads=1, no_attn_norm=(), no_ffn_norm=(), no_attn=no_attn, no_ffn=(), linear_ffn=(), with_data=True, with_optim=True, data_path_local="/Users/guotianyu/GitHub/birth/data", data_path_server="~/data", device=device)
     model, cfg, x, y, ds, optim = model_loader(with_data=True)
     triggers_pos = ds.get_triggers_pos(x.to('cpu'))
     hook_dict = {"basic": forward_hook([], ''), "no_attn_0": check_embed(target_layers=[0, 1, 2], target_heads=[(0, 0)], target_mlp_layers=[]), "no_mlp_0": check_embed(target_layers=[0, 1, 2], target_heads=[], target_mlp_layers=[0]), "clean_attn": clean_attn(list(set([1, 2]) - set(no_attn)), torch.from_numpy(triggers_pos))}
@@ -55,7 +55,7 @@ def compute_dynamic_traj(run_path_server, no_attn=(),):
 if __name__ == "__main__":
     torch.cuda.set_device(2)
     device = 'cuda:2'
-    run_path_list = ["/data/tianyu/birth/gens/pre-iclr/dynamics/dormant_copy_long_train_redo", "/data/tianyu/birth/gens/pre-iclr/dynamics/dormant_copy_long_train", "/data/tianyu/birth/gens/pre-iclr/dynamics/dormant_copy_simplified"]
+    run_path_list = ["~/gens/pre-iclr/dynamics/bbm_long_train_redo", "~/gens/pre-iclr/dynamics/bbm_long_train", "~/gens/pre-iclr/dynamics/bbm_simplified"]
     no_attn_list = [( ), ( ), (2, )]
     for run_path, no_attn in zip(run_path_list, no_attn_list):
         compute_dynamic_traj(run_path, no_attn)
