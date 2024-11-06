@@ -22,7 +22,7 @@ from typing import List, Optional, Tuple
 import os
 # os.chdir("/data/tianyu_guo/birth")
 from data import DataArgs, Dataset, iterate_batches, make_dataset
-from birth.model import ModelArgs, Transformer, forward_hook, test_value, test_sink
+from model import ModelArgs, Transformer, forward_hook, test_value, test_sink
 
 
 def plot_attn_weights(outputs_list, seqs, ds, seq_indices, seq_len, layer_idx, head_idx, seq_start=0, keep_label=None, ticks_size=14, titles=[], save_files_fn=[], fn=None, red_trigger=False, only_trigger=False, cmap="Blues", use_bos=True, use_simple=False, use_grid=False):
@@ -61,7 +61,7 @@ def plot_attn_weights(outputs_list, seqs, ds, seq_indices, seq_len, layer_idx, h
         if use_grid:
             for i in range(len(attns_plot)):
                 for j in range(i+1):
-                    ax.add_patch(plt.Rectangle((j, i), 1, 1, fill=False, edgecolor='black', lw=1))
+                    ax.add_patch(plt.Rectangle((j, i), 1, 1, fill=False, edgecolor='black', lw=2))
             
             ax.set_ylim(len(attns_plot)+0.1, 0)
             ax.set_xlim(0, len(attns_plot)+0.1)
