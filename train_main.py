@@ -49,8 +49,8 @@ class OptimArgs:
 
 @dataclass
 class WandbArgs:
-    project: str = 'birth_dynamics'
-    entity: str = 'tianyu_guo'
+    project: str = 'dormant'
+    entity: str = 'tianyu_guo' # change to your entity name
     name: str = 'bbm'
 
 @dataclass
